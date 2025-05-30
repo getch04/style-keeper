@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:style_keeper/features/home/presentation/home_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -8,8 +9,7 @@ class AppRouter {
       GoRoute(
         path: '/',
         name: 'main',
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Main Screen'))),
+        builder: (context, state) => const HomePage(),
       ),
       GoRoute(
         path: '/wardrobe',

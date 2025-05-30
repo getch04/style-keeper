@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
+import 'core/constants/app_colors.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
 import 'features/wardrobe/presentation/providers/wardrobe_provider.dart';
@@ -35,22 +36,29 @@ class MyApp extends StatelessWidget {
       title: 'Style Keeper',
       routerConfig: AppRouter.router,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.yellow,
-          brightness: Brightness.light,
+        primarySwatch: AppColors.primarySwatch,
+        scaffoldBackgroundColor: AppColors.white,
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.darkGray,
+          secondary: AppColors.yellow,
+          surface: AppColors.white,
+          error: Colors.red,
         ),
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          backgroundColor: AppColors.white,
+          foregroundColor: AppColors.darkGray,
           elevation: 0,
         ),
+        useMaterial3: true,
       ),
       darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.yellow,
-          brightness: Brightness.dark,
+        primarySwatch: AppColors.primarySwatch,
+        scaffoldBackgroundColor: AppColors.darkGray,
+        colorScheme: const ColorScheme.dark(
+          primary: AppColors.yellow,
+          secondary: AppColors.yellow,
+          surface: AppColors.darkGray,
+          error: Colors.red,
         ),
         useMaterial3: true,
       ),
