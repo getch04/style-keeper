@@ -5,6 +5,7 @@ class AppColors {
   static const Color darkGray = Color(0xFF3B3B3B); // #3B3B3B
   static const Color yellow = Color(0xFFE9B727); // #E9B727
   static const Color white = Color(0xFFFFFFFF); // #FFFFFF
+  static const Color background = Color(0xFFeeeeee); // #F5F5F5
   static const Color black = Color(0xFF000000); // #000000
 
   // Material Color for Theme

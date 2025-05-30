@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Jost',
         primarySwatch: AppColors.primarySwatch,
-        scaffoldBackgroundColor: AppColors.white,
+        scaffoldBackgroundColor: AppColors.background,
         colorScheme: const ColorScheme.light(
           primary: AppColors.darkGray,
           secondary: AppColors.yellow,
@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData(
         fontFamily: 'Jost',
         primarySwatch: AppColors.primarySwatch,
-        scaffoldBackgroundColor: AppColors.darkGray,
+        scaffoldBackgroundColor: AppColors.background,
         colorScheme: const ColorScheme.dark(
           primary: AppColors.yellow,
           secondary: AppColors.yellow,

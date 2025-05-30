@@ -3,8 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/home/data/weather_service.dart';
-import 'package:style_keeper/shared/widgets/app_bottom_nav_bar.dart';
-import 'package:style_keeper/shared/widgets/app_main_bar.dart';
+import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
   Future<WeatherInfo?>? _weatherFuture;
 
   @override
@@ -25,64 +23,52 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const AppMainBar(title: 'Hello!'),
-      backgroundColor: AppColors.white,
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Weather Card
-          FutureBuilder<WeatherInfo?>(
-            future: _weatherFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return _buildWeatherCard(
-                  date: _todayString(),
-                  temperature: '---',
-                  icon: AppImages.cloud,
-                  description: 'Loading...',
-                );
-              } else if (snapshot.hasData && snapshot.data != null) {
-                final weather = snapshot.data!;
-                return _buildWeatherCard(
-                  date: _todayString(),
-                  temperature: '${weather.temperature.round()}°C',
-                  icon: _mapWeatherIcon(weather.icon),
-                  description: weather.description,
-                );
-              } else {
-                return _buildWeatherCard(
-                  date: _todayString(),
-                  temperature: '---',
-                  icon: AppImages.rain,
-                  description: 'Unavailable',
-                );
-              }
-            },
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Weather Card
+        FutureBuilder<WeatherInfo?>(
+          future: _weatherFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildWeatherCard(
+                date: _todayString(),
+                temperature: '---',
+                icon: AppImages.cloud,
+                description: 'Loading...',
+              );
+            } else if (snapshot.hasData && snapshot.data != null) {
+              final weather = snapshot.data!;
+              return _buildWeatherCard(
+                date: _todayString(),
+                temperature: '${weather.temperature.round()}°C',
+                icon: _mapWeatherIcon(weather.icon),
+                description: weather.description,
+              );
+            } else {
+              return _buildWeatherCard(
+                date: _todayString(),
+                temperature: '---',
+                icon: AppImages.rain,
+                description: 'Unavailable',
+              );
+            }
+          },
+        ),
+        const SizedBox(height: 24),
+        // Section Title
+        const Text(
+          'Recommendations for today:',
+          style: TextStyle(
+            color: AppColors.darkGray,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
           ),
-          const SizedBox(height: 24),
-          // Section Title
-          const Text(
-            'Recommendations for today:',
-            style: TextStyle(
-              color: AppColors.darkGray,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Recommendations List
-          ...List.generate(3, (index) => _buildRecommendationCard()),
-        ],
-      ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
+        ),
+        const SizedBox(height: 16),
+        // Recommendations List
+        ...List.generate(2, (index) => _buildRecommendationCard()),
+      ],
     );
   }
 
@@ -178,12 +164,12 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkGray.withOpacity(0.12),
+            color: AppColors.darkGray.withValues(alpha: 0.12),
             blurRadius: 24,
             offset: const Offset(0, 0),
           ),
           BoxShadow(
-            color: AppColors.black.withOpacity(0.06),
+            color: AppColors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 0),
           ),
@@ -219,26 +205,10 @@ class _HomePageState extends State<HomePage> {
           SizedBox(
             height: 163,
             child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: 4,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) => Container(
-                width: 164,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.darkGray.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: SvgPicture.asset(
-                    AppImages.noImage, // Placeholder image
-                    width: 62,
-                    height: 62,
-                    color: AppColors.black,
-                  ),
-                ),
-              ),
-            ),
+                scrollDirection: Axis.horizontal,
+                itemCount: 4,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) => const ImagePlaceholer()),
           ),
         ],
       ),
