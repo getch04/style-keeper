@@ -114,16 +114,54 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Inter
-  #     fonts:
-  #       - asset: assets/fonts/Inter-Regular.ttf
-  #       - asset: assets/fonts/Inter-Medium.ttf
-  #         weight: 500
-  #       - asset: assets/fonts/Inter-SemiBold.ttf
-  #         weight: 600
-  #       - asset: assets/fonts/Inter-Bold.ttf
-  #         weight: 700
-  #
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/fonts/Jost-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Jost-ThinItalic.ttf
+          weight: 100
+          style: italic
+        - asset: assets/fonts/Jost-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Jost-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/Jost-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Jost-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/Jost-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Jost-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Jost-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Jost-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Jost-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Jost-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Jost-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Jost-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/Jost-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Jost-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/fonts/Jost-Black.ttf
+          weight: 900
+        - asset: assets/fonts/Jost-BlackItalic.ttf
+          weight: 900
+          style: italic
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

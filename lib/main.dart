@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
       title: 'Style Keeper',
       routerConfig: AppRouter.router,
       theme: ThemeData(
+        fontFamily: 'Jost',
         primarySwatch: AppColors.primarySwatch,
         scaffoldBackgroundColor: AppColors.white,
         colorScheme: const ColorScheme.light(
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
+        fontFamily: 'Jost',
         primarySwatch: AppColors.primarySwatch,
         scaffoldBackgroundColor: AppColors.darkGray,
         colorScheme: const ColorScheme.dark(
