@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return _buildWeatherCard(
                   date: _todayString(),
-                  temperature: '--',
+                  temperature: '---',
                   icon: AppImages.cloud,
                   description: 'Loading...',
                 );
@@ -53,8 +53,8 @@ class _HomePageState extends State<HomePage> {
               } else {
                 return _buildWeatherCard(
                   date: _todayString(),
-                  temperature: '--',
-                  icon: AppImages.cloud,
+                  temperature: '---',
+                  icon: AppImages.rain,
                   description: 'Unavailable',
                 );
               }
@@ -123,15 +123,14 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkGray.withOpacity(0.15),
+            color: AppColors.darkGray.withOpacity(0.12),
             blurRadius: 24,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 0),
           ),
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 0),
           ),
         ],
       ),
@@ -155,15 +154,15 @@ class _HomePageState extends State<HomePage> {
                 style: const TextStyle(
                   color: AppColors.black,
                   fontWeight: FontWeight.bold,
-                  fontSize: 32,
+                  fontSize: 45,
                 ),
               ),
             ],
           ),
           SvgPicture.asset(
             icon,
-            width: 48,
-            height: 48,
+            width: 60,
+            height: 60,
           ),
         ],
       ),
@@ -179,15 +178,14 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkGray.withOpacity(0.15),
+            color: AppColors.darkGray.withOpacity(0.12),
             blurRadius: 24,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
+            offset: const Offset(0, 0),
           ),
           BoxShadow(
-            color: AppColors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 0),
           ),
         ],
       ),
@@ -219,24 +217,24 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 12),
           // Horizontal list of image placeholders
           SizedBox(
-            height: 64,
+            height: 163,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: 4,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) => Container(
-                width: 64,
+                width: 164,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.darkGray.withOpacity(0.08),
+                  color: AppColors.darkGray.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
                   child: SvgPicture.asset(
-                    AppImages.imageAdd, // Placeholder image
-                    width: 32,
-                    height: 32,
-                    color: AppColors.darkGray.withOpacity(0.3),
+                    AppImages.noImage, // Placeholder image
+                    width: 62,
+                    height: 62,
+                    color: AppColors.black,
                   ),
                 ),
               ),

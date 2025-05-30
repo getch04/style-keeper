@@ -15,25 +15,26 @@ class WeatherInfo {
 }
 
 class WeatherService {
-  static const String _apiKey =
-      'YOUR_OPENWEATHERMAP_API_KEY'; // <-- Replace with your API key
-
+  static const String _apiKey = '458890748a67e946adcb7137f914cdd1';
   Future<WeatherInfo?> fetchWeather() async {
     try {
+      //request permission
+      await Geolocator.requestPermission();
       // Get current position
+
       final position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.low);
 
       // Fetch weather data
       final url =
-          'https://api.openweathermap.org/data/2.5/weather?lat=${position.latitude}&lon=${position.longitude}&units=metric&appid=$_apiKey';
+          'http://api.weatherstack.com/current?access_key=$_apiKey&query=${position.latitude},${position.longitude}';
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return WeatherInfo(
-          description: data['weather'][0]['main'],
-          temperature: (data['main']['temp'] as num).toDouble(),
-          icon: data['weather'][0]['icon'],
+          description: data['current']['weather_descriptions'][0],
+          temperature: (data['current']['temperature'] as num).toDouble(),
+          icon: data['current']['weather_icons'][0],
         );
       }
     } catch (e) {
