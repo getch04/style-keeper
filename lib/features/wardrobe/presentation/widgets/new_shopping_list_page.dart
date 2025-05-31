@@ -47,6 +47,7 @@ class NewShoppingListPage extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
+                color: AppColors.darkGray,
               ),
             ),
             ElevatedButton.icon(

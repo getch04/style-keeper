@@ -37,7 +37,7 @@ class MyClothesTab extends StatelessWidget {
               ],
             ),
             child: const Padding(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(15),
               child: ImagePlaceholer(),
             ),
           ),

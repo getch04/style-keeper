@@ -4,7 +4,7 @@ import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 
 class ImagePlaceholer extends StatelessWidget {
-  const ImagePlaceholer({super.key, this.height = 64, this.width = 164});
+  const ImagePlaceholer({super.key, this.height = 91, this.width = 113});
 
   final double? height;
   final double? width;

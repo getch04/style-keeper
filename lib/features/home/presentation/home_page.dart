@@ -204,12 +204,15 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 12),
           // Horizontal list of image placeholders
           SizedBox(
-            height: 163,
+            height: 113,
             child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: 4,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) => const ImagePlaceholer()),
+                itemBuilder: (context, index) => const ImagePlaceholer(
+                      width: 113,
+                      height: 91,
+                    )),
           ),
         ],
       ),

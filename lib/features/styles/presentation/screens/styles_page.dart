@@ -126,8 +126,9 @@ class _StyleCollection extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.darkGray,
                 ),
               ),
               Text(
@@ -141,13 +142,14 @@ class _StyleCollection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 130,
+            height: 110,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: images.map((image) {
                 return Container(
                   margin: const EdgeInsets.only(right: 8),
-                  height: 100,
+                  height: 91,
+                  width: 113,
                   child: const ImagePlaceholer(),
                 );
               }).toList(),
@@ -164,21 +166,35 @@ class CreateLookButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      onPressed: () => context.push('/create-style'),
-      backgroundColor: AppColors.yellow,
-      foregroundColor: AppColors.white,
-      elevation: 0,
-      icon: SvgPicture.asset(
-        AppImages.plus,
-        width: 24,
-        height: 24,
-      ),
-      label: const Text(
-        'Create new LOOK',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
+    return Padding(
+      padding: const EdgeInsets.only(right: 5),
+      child: SizedBox(
+        height: 50,
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.yellow,
+            foregroundColor: AppColors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            elevation: 0,
+          ),
+          onPressed: () {
+            context.push('/create-style');
+          },
+          icon: SvgPicture.asset(
+            AppImages.plus,
+            width: 24,
+            color: AppColors.white,
+          ),
+          label: const Text(
+            'Add new TRIP',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
         ),
       ),
     );

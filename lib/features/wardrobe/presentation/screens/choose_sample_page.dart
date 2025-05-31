@@ -38,6 +38,7 @@ class _ChooseSamplePageState extends State<ChooseSamplePage> {
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 16,
+                color: AppColors.darkGray,
               ),
             ),
             const SizedBox(height: 24),
