@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/app_main_page.dart';
 import 'package:style_keeper/features/home/presentation/home_page.dart';
+import 'package:style_keeper/features/styles/presentation/create_style_page.dart';
 import 'package:style_keeper/features/styles/presentation/styles_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/add_clothing_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/wardrobe_page.dart';
@@ -70,9 +71,7 @@ class AppRouter {
         name: 'create-style',
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
-          child: const AppMainPage(
-            child: Scaffold(body: Center(child: Text('Create Style Screen'))),
-          ),
+          child: const AppMainPage(child: CreateStylePage()),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

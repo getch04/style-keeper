@@ -4,13 +4,16 @@ import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 
 class ImagePlaceholer extends StatelessWidget {
-  const ImagePlaceholer({super.key});
+  const ImagePlaceholer({super.key, this.height = 64, this.width = 164});
+
+  final double? height;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 164,
-      height: 64,
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         color: AppColors.darkGray.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
