@@ -91,7 +91,38 @@ class _WardrobePageState extends State<WardrobePage> {
                     ),
                   ),
                 )
-              : null,
+              : Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: SizedBox(
+                    height: 50,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.yellow,
+                        foregroundColor: AppColors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        context.push('/${NewShoppingListPage.name}');
+                      },
+                      icon: SvgPicture.asset(
+                        AppImages.plus,
+                        width: 24,
+                        color: AppColors.white,
+                      ),
+                      label: const Text(
+                        'Add new TRIP',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

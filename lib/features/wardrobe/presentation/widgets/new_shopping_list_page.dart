@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
 
 class NewShoppingListPage extends StatelessWidget {
@@ -48,7 +50,9 @@ class NewShoppingListPage extends StatelessWidget {
               ),
             ),
             ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                context.push('/${AddClothingPage.name}');
+              },
               icon: SvgPicture.asset(AppImages.plus,
                   width: 22, height: 22, color: Colors.white),
               label: const Text(
