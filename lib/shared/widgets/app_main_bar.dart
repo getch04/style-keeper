@@ -36,7 +36,7 @@ class AppMainBar extends StatelessWidget implements PreferredSizeWidget {
               ? GestureDetector(
                   onTap: onBack,
                   child: Padding(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(12),
                     child: SvgPicture.asset(
                       AppImages.arrowBack,
                     ),
