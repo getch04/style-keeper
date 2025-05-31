@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/presentation/choose_sample_page.dart';
 import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 
 class AddClothingPage extends StatelessWidget {
@@ -12,14 +13,18 @@ class AddClothingPage extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.85),
+      barrierColor: Colors.black.withOpacity(0.85),
       builder: (context) => NoticeDialog(
         title: 'Notice',
         message:
             'Please note that before taking a photo, place the element on a white background and set its standard position. For your convenience, we have developed several templates.',
         onContinue: () {
           Navigator.of(context).pop();
-          // TODO: Continue to photo picker
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const ChooseSamplePage(),
+            ),
+          );
         },
         onCancel: () {
           Navigator.of(context).pop();
