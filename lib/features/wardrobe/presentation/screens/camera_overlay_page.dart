@@ -103,10 +103,25 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(left: 16, top: 8),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white, size: 28),
-                onPressed: () => Navigator.of(context).pop(),
+              child: InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      AppImages.arrowBack,
+                      width: 24,
+                      height: 24,
+                      color: Colors.white,
+                    ),
+                    const Text(
+                      'Back',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

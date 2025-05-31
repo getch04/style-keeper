@@ -3,10 +3,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/my_clothes_tab.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/shopping_tab.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/trip_list_tab.dart';
+import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 
 class WardrobePage extends StatefulWidget {
   static const String name = "wardrobe";
@@ -19,6 +21,26 @@ class WardrobePage extends StatefulWidget {
 class _WardrobePageState extends State<WardrobePage> {
   int _selectedTab = 0;
   final List<String> _tabs = ['My clothes', 'Shopping', 'Trip list'];
+  void _showNoticeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.85),
+      builder: (context) => NoticeDialog(
+        onContinue: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const ChooseSamplePage(),
+            ),
+          );
+        },
+        onCancel: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +61,7 @@ class _WardrobePageState extends State<WardrobePage> {
                     ),
                     elevation: 0,
                   ),
-                  onPressed: () {},
+                  onPressed: () => _showNoticeDialog(context),
                   icon: SvgPicture.asset(
                     AppImages.plus,
                     width: 24,

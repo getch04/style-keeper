@@ -22,6 +22,7 @@ class AppImages {
   static const String noImageBig = 'assets/icons/no_imageb.svg';
   static const String circleCheck = 'assets/icons/check.svg';
   static const String circleUncheck = 'assets/icons/uncheck.svg';
+  static const String coloredEdit = 'assets/icons/colored_edit.svg';
 
   //weather icons
   static const String sun = 'assets/icons/weather/sun.svg';

@@ -16,10 +16,7 @@ class AddClothingPage extends StatelessWidget {
       barrierDismissible: false,
       barrierColor: Colors.black.withOpacity(0.85),
       builder: (context) => NoticeDialog(
-        title: 'Notice',
-        message:
-            'Please note that before taking a photo, place the element on a white background and set its standard position. For your convenience, we have developed several templates.',
-        onContinue: () {
+     onContinue: () {
           Navigator.of(context).pop();
           Navigator.of(context).push(
             MaterialPageRoute(

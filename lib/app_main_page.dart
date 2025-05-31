@@ -21,6 +21,8 @@ class AppMainPage extends StatelessWidget {
       return 'Create Style';
     } else if (location.startsWith('/new-shopping-list')) {
       return 'New shopping list';
+    } else if (location.startsWith('/clothing-detail')) {
+      return 'Clothing';
     } else {
       return 'Hello!';
     }
@@ -28,12 +30,13 @@ class AppMainPage extends StatelessWidget {
 
   int _getCurrentIndex(String location) {
     if (location.startsWith('/wardrobe') ||
-        location.startsWith('/add-product')) {
+        location.startsWith('/add-product') ||
+        location.startsWith('/new-shopping-list') ||
+        location.startsWith('/clothing-detail')) {
       return 1;
     } else if (location.startsWith('/looks') ||
         location.startsWith('/styles') ||
-        location.startsWith('/create-style') ||
-        location.startsWith('/new-shopping-list')) {
+        location.startsWith('/create-style')) {
       return 2;
     } else {
       return 0;
@@ -45,7 +48,8 @@ class AppMainPage extends StatelessWidget {
     final String location = GoRouterState.of(context).uri.path;
     final bool showBack = location.startsWith('/add-product') ||
         location.startsWith('/create-style') ||
-        location.startsWith('/new-shopping-list');
+        location.startsWith('/new-shopping-list') ||
+        location.startsWith('/clothing-detail');
     final int currentIndex = _getCurrentIndex(location);
     final String appBarTitle = _getTitle(location);
 

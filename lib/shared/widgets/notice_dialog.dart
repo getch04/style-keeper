@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 
 class NoticeDialog extends StatelessWidget {
-  final String title;
-  final String message;
   final VoidCallback onContinue;
   final VoidCallback onCancel;
 
   const NoticeDialog({
     super.key,
-    required this.title,
-    required this.message,
     required this.onContinue,
     required this.onCancel,
   });
@@ -36,23 +32,23 @@ class NoticeDialog extends StatelessWidget {
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
+                child: const Padding(
+                  padding: EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        title,
-                        style: const TextStyle(
+                        'Notice',
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 38,
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
-                        message,
-                        style: const TextStyle(
+                        "Please note that before taking a photo, place the element on a white background and set its standard position. For your convenience, we have developed several templates.",
+                        style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
                           height: 1.3,

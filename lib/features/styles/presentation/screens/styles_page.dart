@@ -168,6 +168,7 @@ class CreateLookButton extends StatelessWidget {
       onPressed: () => context.push('/create-style'),
       backgroundColor: AppColors.yellow,
       foregroundColor: AppColors.white,
+      elevation: 0,
       icon: SvgPicture.asset(
         AppImages.plus,
         width: 24,

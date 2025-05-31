@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/app_main_page.dart';
 import 'package:style_keeper/features/home/presentation/home_page.dart';
-import 'package:style_keeper/features/styles/presentation/create_style_page.dart';
-import 'package:style_keeper/features/styles/presentation/styles_page.dart';
+import 'package:style_keeper/features/styles/presentation/screens/create_style_page.dart';
+import 'package:style_keeper/features/styles/presentation/screens/styles_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/wardrobe_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/clothing_detail_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
 
 class AppRouter {
@@ -89,8 +90,17 @@ class AppRouter {
           },
         ),
       ),
-     
-
+      GoRoute(
+        path: '/clothing-detail',
+        name: 'clothing-detail',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: ClothingDetailPage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
     ],
   );
 }

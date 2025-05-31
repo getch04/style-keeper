@@ -28,7 +28,7 @@ class _ChooseSamplePageState extends State<ChooseSamplePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -41,49 +41,51 @@ class _ChooseSamplePageState extends State<ChooseSamplePage> {
               ),
             ),
             const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Center(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  itemCount: icons.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 24,
-                    crossAxisSpacing: 24,
-                    childAspectRatio: 1,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Center(
+                  child: GridView.builder(
+                    itemCount: icons.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 24,
+                      crossAxisSpacing: 24,
+                      childAspectRatio: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final isSelected = selectedIndex == index;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedIndex = index;
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color:
+                                  isSelected ? AppColors.yellow : Colors.black,
+                              width: isSelected ? 3 : 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              icons[index],
+                              width: 64,
+                              height: 64,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  itemBuilder: (context, index) {
-                    final isSelected = selectedIndex == index;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedIndex = index;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: isSelected ? AppColors.yellow : Colors.black,
-                            width: isSelected ? 3 : 1,
-                          ),
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            icons[index],
-                            width: 64,
-                            height: 64,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
                 ),
               ),
             ),
-            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Column(
