@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
-import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
+
+import 'choose_items_bottom_sheet.dart';
 
 class NewShoppingListPage extends StatelessWidget {
   static const String name = "new-shopping-list";
@@ -51,7 +51,12 @@ class NewShoppingListPage extends StatelessWidget {
             ),
             ElevatedButton.icon(
               onPressed: () {
-                context.push('/${AddClothingPage.name}');
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => const ChooseItemsBottomSheet(),
+                );
               },
               icon: SvgPicture.asset(AppImages.plus,
                   width: 22, height: 22, color: Colors.white),

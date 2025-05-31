@@ -20,6 +20,8 @@ class AppImages {
   static const String wardrobe = 'assets/icons/wardrobe.svg';
   static const String noImage = 'assets/icons/no_image.svg';
   static const String noImageBig = 'assets/icons/no_imageb.svg';
+  static const String circleCheck = 'assets/icons/check.svg';
+  static const String circleUncheck = 'assets/icons/uncheck.svg';
 
   //weather icons
   static const String sun = 'assets/icons/weather/sun.svg';

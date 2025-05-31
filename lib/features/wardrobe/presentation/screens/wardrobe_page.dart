@@ -24,40 +24,42 @@ class _WardrobePageState extends State<WardrobePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: _selectedTab == 0
-          ? ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.yellow,
-                foregroundColor: AppColors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                elevation: 0,
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              onPressed: () {},
-              icon: SvgPicture.asset(
-                AppImages.plus,
-                width: 24,
-                color: AppColors.white,
-              ),
-              label: const Text(
-                'Add new CLOTHING',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+          ? Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: SizedBox(
+                height: 50,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.yellow,
+                    foregroundColor: AppColors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 18),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () {},
+                  icon: SvgPicture.asset(
+                    AppImages.plus,
+                    width: 24,
+                    color: AppColors.white,
+                  ),
+                  label: const Text(
+                    'Add new CLOTHING',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
               ),
             )
           : _selectedTab == 1
               ? Padding(
-                  padding: const EdgeInsets.only(bottom: 8, right: 8),
+                  padding: const EdgeInsets.only(right: 5),
                   child: SizedBox(
-                    height: 56,
+                    height: 50,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.yellow,
@@ -68,10 +70,6 @@ class _WardrobePageState extends State<WardrobePage> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                         elevation: 0,
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
                       ),
                       onPressed: () {
                         context.push('/${NewShoppingListPage.name}');
@@ -85,7 +83,7 @@ class _WardrobePageState extends State<WardrobePage> {
                         'Add new LIST',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 12,
                         ),
                       ),
                     ),
