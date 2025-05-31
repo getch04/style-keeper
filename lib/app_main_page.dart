@@ -23,6 +23,8 @@ class AppMainPage extends StatelessWidget {
       return 'New shopping list';
     } else if (location.startsWith('/clothing-detail')) {
       return 'Clothing';
+    } else if (location.startsWith('/shopping-list-detail')) {
+      return 'Shopping';
     } else {
       return 'Hello!';
     }
@@ -32,7 +34,8 @@ class AppMainPage extends StatelessWidget {
     if (location.startsWith('/wardrobe') ||
         location.startsWith('/add-product') ||
         location.startsWith('/new-shopping-list') ||
-        location.startsWith('/clothing-detail')) {
+        location.startsWith('/clothing-detail') ||
+        location.startsWith('/shopping-list-detail')) {
       return 1;
     } else if (location.startsWith('/looks') ||
         location.startsWith('/styles') ||
@@ -49,7 +52,8 @@ class AppMainPage extends StatelessWidget {
     final bool showBack = location.startsWith('/add-product') ||
         location.startsWith('/create-style') ||
         location.startsWith('/new-shopping-list') ||
-        location.startsWith('/clothing-detail');
+        location.startsWith('/clothing-detail') ||
+        location.startsWith('/shopping-list-detail');
     final int currentIndex = _getCurrentIndex(location);
     final String appBarTitle = _getTitle(location);
 

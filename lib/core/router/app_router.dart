@@ -8,6 +8,7 @@ import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing
 import 'package:style_keeper/features/wardrobe/presentation/screens/wardrobe_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/clothing_detail_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/shopping_list_detail_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -96,6 +97,17 @@ class AppRouter {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: ClothingDetailPage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/shopping-list-detail',
+        name: 'shopping-list-detail',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: ShoppingListDetailPage()),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

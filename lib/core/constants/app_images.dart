@@ -23,6 +23,8 @@ class AppImages {
   static const String circleCheck = 'assets/icons/check.svg';
   static const String circleUncheck = 'assets/icons/uncheck.svg';
   static const String coloredEdit = 'assets/icons/colored_edit.svg';
+  static const String squareCheck = 'assets/icons/square_check.svg';
+  static const String squareUncheck = 'assets/icons/square_uncheck.svg';
 
   //weather icons
   static const String sun = 'assets/icons/weather/sun.svg';
