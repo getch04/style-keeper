@@ -6,6 +6,7 @@ import 'package:style_keeper/features/styles/presentation/create_style_page.dart
 import 'package:style_keeper/features/styles/presentation/styles_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/wardrobe_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -23,8 +24,8 @@ class AppRouter {
         ),
       ),
       GoRoute(
-        path: '/home',
-        name: 'home',
+        path: '/${HomePage.name}',
+        name: HomePage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: HomePage()),
@@ -34,8 +35,8 @@ class AppRouter {
         ),
       ),
       GoRoute(
-        path: '/wardrobe',
-        name: 'wardrobe',
+        path: '/${WardrobePage.name}',
+        name: WardrobePage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: WardrobePage()),
@@ -45,8 +46,8 @@ class AppRouter {
         ),
       ),
       GoRoute(
-        path: '/add-product',
-        name: 'add-product',
+        path: '/${AddClothingPage.name}',
+        name: AddClothingPage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: AddClothingPage()),
@@ -56,8 +57,8 @@ class AppRouter {
         ),
       ),
       GoRoute(
-        path: '/styles',
-        name: 'styles',
+        path: '/${StylesPage.name}',
+        name: StylesPage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: StylesPage()),
@@ -67,11 +68,22 @@ class AppRouter {
         ),
       ),
       GoRoute(
-        path: '/create-style',
-        name: 'create-style',
+        path: '/${CreateStylePage.name}',
+        name: CreateStylePage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: CreateStylePage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/${NewShoppingListPage.name}',
+        name: NewShoppingListPage.name,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: NewShoppingListPage()),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

@@ -7,6 +7,7 @@ import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sampl
 import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 
 class AddClothingPage extends StatelessWidget {
+  static const String name = "add-product";
   const AddClothingPage({super.key});
 
   void _showNoticeDialog(BuildContext context) {

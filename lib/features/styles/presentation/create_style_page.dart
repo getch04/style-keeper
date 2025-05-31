@@ -6,6 +6,7 @@ import 'package:style_keeper/shared/widgets/add_photo_section.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class CreateStylePage extends StatelessWidget {
+  static const String name = "create-style";
   const CreateStylePage({super.key});
 
   @override

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/my_clothes_tab.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/shopping_tab.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/trip_list_tab.dart';
 
 class WardrobePage extends StatefulWidget {
+  static const String name = "wardrobe";
   const WardrobePage({super.key});
 
   @override
@@ -70,7 +73,9 @@ class _WardrobePageState extends State<WardrobePage> {
                           fontSize: 16,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push('/${NewShoppingListPage.name}');
+                      },
                       icon: SvgPicture.asset(
                         AppImages.plus,
                         width: 24,

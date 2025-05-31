@@ -6,6 +6,7 @@ import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class StylesPage extends StatelessWidget {
+  static const String name = "styles";
   const StylesPage({super.key});
 
   @override

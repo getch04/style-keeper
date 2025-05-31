@@ -6,6 +6,7 @@ import 'package:style_keeper/features/home/data/weather_service.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class HomePage extends StatefulWidget {
+  static const String name = "home";
   const HomePage({super.key});
 
   @override
