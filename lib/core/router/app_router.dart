@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/app_main_page.dart';
 import 'package:style_keeper/features/home/presentation/home_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/add_clothing_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/wardrobe_page.dart';
 
 class AppRouter {
@@ -11,34 +12,72 @@ class AppRouter {
       GoRoute(
         path: '/',
         name: 'main',
-        builder: (context, state) => const AppMainPage(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: HomePage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       ),
       GoRoute(
         path: '/home',
         name: 'home',
-        builder: (context, state) => const HomePage(),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: HomePage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       ),
       GoRoute(
-          path: '/wardrobe',
-          name: 'wardrobe',
-          builder: (context, state) => const WardrobePage()),
+        path: '/wardrobe',
+        name: 'wardrobe',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: WardrobePage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
       GoRoute(
         path: '/add-product',
         name: 'add-product',
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Add Product Screen'))),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: AddClothingPage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       ),
       GoRoute(
         path: '/styles',
         name: 'styles',
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Styles Screen'))),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(
+            child: Scaffold(body: Center(child: Text('Styles Screen'))),
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       ),
       GoRoute(
         path: '/create-style',
         name: 'create-style',
-        builder: (context, state) =>
-            const Scaffold(body: Center(child: Text('Create Style Screen'))),
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(
+            child: Scaffold(body: Center(child: Text('Create Style Screen'))),
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
       ),
     ],
   );

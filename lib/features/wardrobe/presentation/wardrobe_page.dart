@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
@@ -33,7 +34,7 @@ class _WardrobePageState extends State<WardrobePage> {
           ),
         ),
         onPressed: () {
-          // TODO: Add new clothing action
+          context.push('/add-product');
         },
         icon: SvgPicture.asset(
           AppImages.plus,
@@ -190,7 +191,6 @@ class _WardrobePageState extends State<WardrobePage> {
             },
           ),
           const SizedBox(height: 24),
-          // Add new clothing button
         ],
       ),
     );

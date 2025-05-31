@@ -1,45 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/shared/widgets/app_bottom_nav_bar.dart';
 import 'package:style_keeper/shared/widgets/app_main_bar.dart';
-
-import 'features/home/presentation/home_page.dart';
-import 'features/wardrobe/presentation/wardrobe_page.dart';
 // import 'features/looks/presentation/looks_page.dart'; // Add when you have it
 
-class AppMainPage extends StatefulWidget {
-  const AppMainPage({super.key});
+class AppMainPage extends StatelessWidget {
+  const AppMainPage({super.key, required this.child});
 
-  @override
-  State<AppMainPage> createState() => _AppMainPageState();
-}
+  final Widget child;
 
-class _AppMainPageState extends State<AppMainPage> {
-  int _currentIndex = 0;
+  String _getTitle(String location) {
+    if (location.startsWith('/wardrobe')) {
+      return 'Wardrobe';
+    } else if (location.startsWith('/looks')) {
+      return 'Looks';
+    } else if (location.startsWith('/add-product')) {
+      return 'New clothing';
+    } else {
+      return 'Hello!';
+    }
+  }
 
-  static const List<String> _titles = [
-    'Hello!',
-    'Wardrobe',
-    'Looks',
-  ];
-
-  static final List<Widget> _pages = [
-    const HomePage(),
-    const WardrobePage(),
-    // LooksPage(), // Add your Looks page here
-    const Center(child: Text('Looks')), // Placeholder
-  ];
+  int _getCurrentIndex(String location) {
+    if (location.startsWith('/wardrobe') ||
+        location.startsWith('/add-product')) {
+      return 1;
+    } else if (location.startsWith('/looks')) {
+      return 2;
+    } else {
+      return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    final bool showBack = location.startsWith('/add-product');
+    final int currentIndex = _getCurrentIndex(location);
+    final String appBarTitle = _getTitle(location);
+
     return Scaffold(
-      appBar: AppMainBar(title: _titles[_currentIndex]),
-      body: _pages[_currentIndex],
+      appBar: AppMainBar(
+        title: appBarTitle,
+        showBack: showBack,
+        onBack: () {
+          context.pop();
+        },
+      ),
+      body: child,
       bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _currentIndex,
+        currentIndex: currentIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          switch (index) {
+            case 0:
+              context.go('/');
+              break;
+            case 1:
+              context.go('/wardrobe');
+              break;
+            case 2:
+              context.go('/looks');
+              break;
+          }
         },
       ),
     );
