@@ -4,8 +4,8 @@ import 'package:style_keeper/app_main_page.dart';
 import 'package:style_keeper/features/home/presentation/home_page.dart';
 import 'package:style_keeper/features/styles/presentation/create_style_page.dart';
 import 'package:style_keeper/features/styles/presentation/styles_page.dart';
-import 'package:style_keeper/features/wardrobe/presentation/add_clothing_page.dart';
-import 'package:style_keeper/features/wardrobe/presentation/wardrobe_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/wardrobe_page.dart';
 
 class AppRouter {
   static final router = GoRouter(

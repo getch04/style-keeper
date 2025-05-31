@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
-import 'package:style_keeper/shared/widgets/image_placeholer.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/my_clothes_tab.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/shopping_tab.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/trip_list_tab.dart';
 
 class WardrobePage extends StatefulWidget {
   const WardrobePage({super.key});
@@ -19,36 +20,73 @@ class _WardrobePageState extends State<WardrobePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.yellow,
-          foregroundColor: AppColors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          elevation: 0,
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        onPressed: () {
-          context.push('/add-product');
-        },
-        icon: SvgPicture.asset(
-          AppImages.plus,
-          width: 24,
-          color: AppColors.white,
-        ),
-        label: const Text(
-          'Add new CLOTHING',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        ),
-      ),
+      floatingActionButton: _selectedTab == 0
+          ? ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.yellow,
+                foregroundColor: AppColors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                elevation: 0,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {},
+              icon: SvgPicture.asset(
+                AppImages.plus,
+                width: 24,
+                color: AppColors.white,
+              ),
+              label: const Text(
+                'Add new CLOTHING',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            )
+          : _selectedTab == 1
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 8, right: 8),
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.yellow,
+                        foregroundColor: AppColors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      onPressed: () {},
+                      icon: SvgPicture.asset(
+                        AppImages.plus,
+                        width: 24,
+                        color: AppColors.white,
+                      ),
+                      label: const Text(
+                        'Add new LIST',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : null,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -159,38 +197,11 @@ class _WardrobePageState extends State<WardrobePage> {
             ),
           ),
           const SizedBox(height: 24),
-          // Grid of image placeholders
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 4,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 20,
-              childAspectRatio: 1.3,
-            ),
-            itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.darkGray.withOpacity(0.10),
-                      blurRadius: 12,
-                      offset: const Offset(0, 0),
-                    ),
-                  ],
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: ImagePlaceholer(),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 24),
+          _selectedTab == 0
+              ? const MyClothesTab()
+              : _selectedTab == 1
+                  ? const ShoppingTab()
+                  : const TripListTab(),
         ],
       ),
     );
