@@ -32,13 +32,31 @@ class AppMainBar extends StatelessWidget implements PreferredSizeWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
+          leadingWidth: 100,
           leading: showBack
               ? GestureDetector(
                   onTap: onBack,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: SvgPicture.asset(
-                      AppImages.arrowBack,
+                    child: Row(
+                      children: [
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: 16,
+                            maxHeight: 16,
+                          ),
+                          child: SvgPicture.asset(
+                            AppImages.arrowBack,
+                          ),
+                        ),
+                        const Text(
+                          "Back",
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 )

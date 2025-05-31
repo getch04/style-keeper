@@ -3,22 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 
 class AddClothingPage extends StatelessWidget {
   const AddClothingPage({super.key});
 
+  void _showNoticeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.85),
+      builder: (context) => NoticeDialog(
+        title: 'Notice',
+        message:
+            'Please note that before taking a photo, place the element on a white background and set its standard position. For your convenience, we have developed several templates.',
+        onContinue: () {
+          Navigator.of(context).pop();
+          // TODO: Continue to photo picker
+        },
+        onCancel: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           // Photo picker
           GestureDetector(
-            onTap: () {
-              // TODO: Implement photo picker
-            },
+            onTap: () => _showNoticeDialog(context),
             child: DottedBorder(
               color: AppColors.yellow,
               strokeWidth: 2,
