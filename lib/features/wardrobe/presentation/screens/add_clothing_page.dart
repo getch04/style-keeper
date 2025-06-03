@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +8,7 @@ import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
+import 'package:style_keeper/shared/widgets/add_photo_section.dart';
 import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 import 'package:uuid/uuid.dart';
 
@@ -60,7 +60,7 @@ class _AddClothingPageState extends State<AddClothingPage> {
     );
     await WardrobeHiveService().addClothingItem(item);
     setState(() => _isSaving = false);
-    if (mounted) Navigator.of(context).pop();
+    if (mounted) context.go('/wardrobe');
   }
 
   void _showNoticeDialog(BuildContext context) {
@@ -85,55 +85,50 @@ class _AddClothingPageState extends State<AddClothingPage> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          GestureDetector(
-            onTap: imagePath == null ? () => _showNoticeDialog(context) : null,
-            child: DottedBorder(
-              color: AppColors.yellow,
-              strokeWidth: 2,
-              borderType: BorderType.RRect,
-              radius: const Radius.circular(24),
-              dashPattern: const [12, 8],
-              child: Container(
-                width: double.infinity,
-                height: 180,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Center(
-                  child: imagePath == null
-                      ? Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              AppImages.imageAdd,
-                              width: 64,
-                              color: AppColors.yellow,
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'Add photo',
-                              style: TextStyle(
-                                color: AppColors.yellow,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
-                          child: Image.file(
-                            File(imagePath!),
-                            width: double.infinity,
-                            height: 180,
-                            fit: BoxFit.cover,
-                          ),
+          if (imagePath == null) const AddPhotoSection(),
+          if (imagePath != null)
+            Container(
+              width: 400,
+              height: 200,
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image.file(
+                        File(imagePath!),
+                        height: 180,
+                        width: 180,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    const SizedBox(width: 30),
+                    Container(
+                      width: 45,
+                      height: 45,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SvgPicture.asset(
+                          AppImages.delete,
+                          // width: 24,
+                          // height: 24,
+                          color: Colors.white,
                         ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
           const SizedBox(height: 32),
           _buildInput(_nameController, 'Name of clothing'),
           const SizedBox(height: 18),

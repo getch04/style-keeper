@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/presentation/providers/selected_sample_provider.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
 import 'package:style_keeper/shared/widgets/app_wide_button.dart';
 
@@ -64,6 +66,9 @@ class _ChooseSamplePageState extends State<ChooseSamplePage> {
                           setState(() {
                             selectedIndex = index;
                           });
+                          Provider.of<SelectedSampleProvider>(context,
+                                  listen: false)
+                              .setSelectedIndex(index);
                         },
                         child: Container(
                           decoration: BoxDecoration(

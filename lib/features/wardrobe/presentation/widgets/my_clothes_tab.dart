@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/clothing_detail_page.dart';
@@ -17,6 +19,7 @@ class MyClothesTab extends StatefulWidget {
 
 class _MyClothesTabState extends State<MyClothesTab> {
   late Future<List<ClothingItem>> _clothesFuture;
+  int? _longPressedIndex;
 
   @override
   void initState() {
@@ -28,10 +31,12 @@ class _MyClothesTabState extends State<MyClothesTab> {
     _clothesFuture = WardrobeHiveService().getAllClothingItems();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadClothes();
+  Future<void> _deleteClothingItem(String id) async {
+    await WardrobeHiveService().deleteClothingItem(id);
+    setState(() {
+      _longPressedIndex = null;
+      _loadClothes();
+    });
   }
 
   @override
@@ -86,40 +91,79 @@ class _MyClothesTabState extends State<MyClothesTab> {
             final item = clothes[index];
             return GestureDetector(
               onTap: () {
-                context.push('/${ClothingDetailPage.name}', extra: item);
+                if (_longPressedIndex != null) {
+                  setState(() => _longPressedIndex = null);
+                } else {
+                  context.push('/${ClothingDetailPage.name}', extra: item);
+                }
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.darkGray.withOpacity(0.10),
-                      blurRadius: 12,
-                      offset: const Offset(0, 0),
+              onLongPress: () {
+                setState(() => _longPressedIndex = index);
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.darkGray.withOpacity(0.10),
+                          blurRadius: 12,
+                          offset: const Offset(0, 0),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: item.imagePath.isNotEmpty
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(
-                                  File(item.imagePath),
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : const ImagePlaceholer(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: item.imagePath.isNotEmpty
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      File(item.imagePath),
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : const ImagePlaceholer(),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  if (_longPressedIndex == index)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.25),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Center(
+                          child: GestureDetector(
+                            onTap: () => _deleteClothingItem(item.id),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              child: SvgPicture.asset(
+                                AppImages.delete,
+                                color: Colors.white,
+                                width: 26,
+                                height: 26,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             );
           },

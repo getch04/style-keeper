@@ -6,6 +6,7 @@ import 'core/constants/app_colors.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
 import 'features/wardrobe/data/models/clothing_item.dart';
+import 'features/wardrobe/presentation/providers/selected_sample_provider.dart';
 import 'features/wardrobe/presentation/providers/wardrobe_provider.dart';
 
 void main() async {
@@ -23,6 +24,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => WardrobeProvider()),
+        ChangeNotifierProvider(create: (_) => SelectedSampleProvider()),
         // Add other providers here
       ],
       child: const MyApp(),

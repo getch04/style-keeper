@@ -4,8 +4,11 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/core/plugin/flutter_camera_overlay.dart';
+import 'package:style_keeper/features/wardrobe/presentation/providers/selected_sample_provider.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 
 class CameraOverlayPage extends StatefulWidget {
@@ -18,7 +21,6 @@ class CameraOverlayPage extends StatefulWidget {
 
 class _CameraOverlayPageState extends State<CameraOverlayPage> {
   CameraController? _controller;
-  int selectedIndex = 1;
   bool _isCameraInitialized = false;
 
   final List<String> icons = [
@@ -60,52 +62,30 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double squareSize = MediaQuery.of(context).size.width * 0.65;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    // Make the box as large as possible, with padding
+    final double squareSize = screenWidth * 0.7; // 16px padding on each side
+    final selectedIndex =
+        Provider.of<SelectedSampleProvider>(context).selectedIndex;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Camera preview background
-          Positioned.fill(
-            child: _isCameraInitialized && _controller != null
-                ? CameraPreview(_controller!)
-                : Container(color: Colors.black),
-          ),
-          // Overlay
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.8),
-            ),
-          ),
-          // Centered camera area with border
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              width: squareSize,
-              height: squareSize,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(36),
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  _isCameraInitialized && _controller != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(36),
-                          child: CameraPreview(_controller!),
-                        )
-                      : Container(),
-                  SvgPicture.asset(
-                    icons[selectedIndex],
-                    width: squareSize * 0.95,
-                    color: Colors.white.withOpacity(0.7),
-                    fit: BoxFit.contain,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          //  final CameraDescription camera;
+          _isCameraInitialized && _controller != null
+              ? CameraOverlay(
+                  _controller!.description,
+                  (XFile file) {
+                    print(file);
+                  },
+                  imagePath: icons[selectedIndex],
+                )
+              : const Center(
+                  child: CircularProgressIndicator(),
+                ),
+
           // Back button
           SafeArea(
             child: Padding(
@@ -136,7 +116,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 48),
+              padding: const EdgeInsets.only(bottom: 35),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -167,9 +147,9 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                         final isSelected = selectedIndex == index;
                         return GestureDetector(
                           onTap: () {
-                            setState(() {
-                              selectedIndex = index;
-                            });
+                            Provider.of<SelectedSampleProvider>(context,
+                                    listen: false)
+                                .setSelectedIndex(index);
                           },
                           child: Container(
                             width: 64,
@@ -285,9 +265,9 @@ class CameraPreviewPage extends StatelessWidget {
                   ),
                   SvgPicture.asset(
                     overlayAsset,
-                    width: squareSize * 0.95,
+                    width: squareSize * 0.55,
                     color: Colors.white.withOpacity(0.7),
-                    fit: BoxFit.contain,
+                    fit: BoxFit.fill,
                   ),
                 ],
               ),
