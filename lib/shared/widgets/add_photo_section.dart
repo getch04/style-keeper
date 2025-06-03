@@ -42,7 +42,6 @@ class AddPhotoSection extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: 200,
-        margin: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(24),

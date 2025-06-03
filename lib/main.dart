@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_colors.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
+import 'features/wardrobe/data/models/clothing_item.dart';
 import 'features/wardrobe/presentation/providers/wardrobe_provider.dart';
 
 void main() async {
@@ -12,6 +13,8 @@ void main() async {
 
   // Initialize Hive
   await Hive.initFlutter();
+  Hive.registerAdapter(ClothingItemAdapter());
+  await Hive.openBox<ClothingItem>('clothing_items');
 
   // Initialize dependency injection
   await configureDependencies();
