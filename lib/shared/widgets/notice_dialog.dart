@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 
@@ -46,10 +47,10 @@ class NoticeDialog extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 12),
-                      Text(
+                      AutoSizeText(
                         "Please note that before taking a photo, place the element on a white background and set its standard position. For your convenience, we have developed several templates.",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 16,
                           color: Colors.black,
                           height: 1.3,
                         ),

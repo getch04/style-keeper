@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
 import 'package:style_keeper/shared/widgets/app_wide_button.dart';
 
 class ChooseSamplePage extends StatefulWidget {
+  static const String name = "choose-sample";
   const ChooseSamplePage({super.key});
 
   @override
@@ -94,11 +96,7 @@ class _ChooseSamplePageState extends State<ChooseSamplePage> {
                   AppWideButton(
                     text: 'Next step',
                     onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const CameraOverlayPage(),
-                        ),
-                      );
+                      context.push('/${CameraOverlayPage.name}');
                     },
                   ),
                   const SizedBox(height: 12),
@@ -106,7 +104,7 @@ class _ChooseSamplePageState extends State<ChooseSamplePage> {
                     backgroundColor: AppColors.darkGray,
                     text: 'Back',
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
                   ),
                 ],

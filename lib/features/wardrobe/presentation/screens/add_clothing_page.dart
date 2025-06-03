@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
@@ -16,16 +17,11 @@ class AddClothingPage extends StatelessWidget {
       barrierDismissible: false,
       barrierColor: Colors.black.withOpacity(0.85),
       builder: (context) => NoticeDialog(
-     onContinue: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const ChooseSamplePage(),
-            ),
-          );
+        onContinue: () {
+          context.push('/${ChooseSamplePage.name}');
         },
         onCancel: () {
-          Navigator.of(context).pop();
+          GoRouter.of(context).pop();
         },
       ),
     );
@@ -115,7 +111,12 @@ class AddClothingPage extends StatelessWidget {
 
   Widget _buildInput(String hint) {
     return TextField(
-      enabled: false, // For pixel-perfect mockup, set to true for real use
+      // enabled: false, // For pixel-perfect mockup, set to true for real use
+      style: const TextStyle(
+        fontWeight: FontWeight.w500,
+        fontSize: 18,
+        color: Colors.black,
+      ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(

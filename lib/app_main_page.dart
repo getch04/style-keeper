@@ -62,7 +62,11 @@ class AppMainPage extends StatelessWidget {
         title: appBarTitle,
         showBack: showBack,
         onBack: () {
-          context.pop();
+          if (location == '/add-product') {
+            context.go('/wardrobe');
+          } else {
+            context.canPop() ? context.pop() : context.go('/');
+          }
         },
       ),
       body: child,

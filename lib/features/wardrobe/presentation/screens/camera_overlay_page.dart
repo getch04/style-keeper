@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 
 class CameraOverlayPage extends StatefulWidget {
+  static const String name = "camera-overlay";
   const CameraOverlayPage({super.key});
 
   @override
@@ -55,6 +60,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double squareSize = MediaQuery.of(context).size.width * 0.65;
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -68,34 +74,35 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
           // Overlay
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.45),
+              color: Colors.black.withOpacity(0.8),
             ),
           ),
-          // Centered camera area with template overlay
+          // Centered camera area with border
           Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 60),
-              child: ClipRRect(
+            alignment: Alignment.center,
+            child: Container(
+              width: squareSize,
+              height: squareSize,
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(36),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.width * 0.85,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      _isCameraInitialized && _controller != null
-                          ? CameraPreview(_controller!)
-                          : Container(color: Colors.black),
-                      SvgPicture.asset(
-                        icons[selectedIndex],
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        color: Colors.white.withOpacity(0.7),
-                        fit: BoxFit.contain,
-                      ),
-                    ],
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  _isCameraInitialized && _controller != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(36),
+                          child: CameraPreview(_controller!),
+                        )
+                      : Container(),
+                  SvgPicture.asset(
+                    icons[selectedIndex],
+                    width: squareSize * 0.95,
+                    color: Colors.white.withOpacity(0.7),
+                    fit: BoxFit.contain,
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -125,18 +132,17 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
               ),
             ),
           ),
-          // Bottom controls
+          // Shutter button (bottom center) and sample row
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 36),
+              padding: const EdgeInsets.only(bottom: 48),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Sample label
                   const Padding(
-                    padding: EdgeInsets.only(left: 16, bottom: 8),
+                    padding: EdgeInsets.only(left: 8, bottom: 8),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -149,7 +155,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                       ),
                     ),
                   ),
-                  // Template selection row
+                  // Sample icon row
                   SizedBox(
                     height: 80,
                     child: ListView.separated(
@@ -191,62 +197,168 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Shutter row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border:
-                              Border.all(color: Colors.grey[400]!, width: 2),
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            AppImages.blackNoCloth,
-                            width: 28,
-                            height: 28,
-                            color: Colors.grey[400],
+                  // Shutter button
+                  GestureDetector(
+                    onTap: () async {
+                      if (_controller != null &&
+                          _controller!.value.isInitialized) {
+                        final XFile file = await _controller!.takePicture();
+                        if (!mounted) return;
+                        Router.neglect(
+                          context,
+                          () => context.push(
+                            '/${CameraPreviewPage.name}',
+                            extra: {
+                              'imagePath': file.path,
+                              'overlayIndex': selectedIndex,
+                              'overlayAsset': icons[selectedIndex],
+                              'squareSize': squareSize,
+                            },
                           ),
-                        ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: const BoxDecoration(
+                        color: AppColors.yellow,
+                        shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 36),
-                      GestureDetector(
-                        onTap: () async {
-                          if (_controller != null &&
-                              _controller!.value.isInitialized) {
-                            await _controller!.takePicture();
-                            // TODO: handle image
-                          }
-                        },
+                      child: Center(
                         child: Container(
-                          width: 80,
-                          height: 80,
+                          width: 56,
+                          height: 56,
                           decoration: const BoxDecoration(
-                            color: AppColors.yellow,
+                            color: Colors.white,
                             shape: BoxShape.circle,
                           ),
-                          child: Center(
-                            child: Container(
-                              width: 56,
-                              height: 56,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class CameraPreviewPage extends StatelessWidget {
+  static const String name = "camera-preview";
+
+  const CameraPreviewPage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final extraData = GoRouterState.of(context).extra! as Map<String, dynamic>;
+    final imagePath = extraData['imagePath'] as String;
+    final overlayIndex = extraData['overlayIndex'] as int;
+    final overlayAsset = extraData['overlayAsset'] as String;
+    final squareSize = extraData['squareSize'] as double;
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 92),
+          Center(
+            child: SizedBox(
+              width: squareSize,
+              height: squareSize,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(36),
+                    child: Image.file(
+                      File(imagePath),
+                      width: squareSize,
+                      height: squareSize,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  SvgPicture.asset(
+                    overlayAsset,
+                    width: squareSize * 0.95,
+                    color: Colors.white.withOpacity(0.7),
+                    fit: BoxFit.contain,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push(
+                        '/${AddClothingPage.name}',
+                        extra: {
+                          'imagePath': imagePath,
+                          'overlayIndex': overlayIndex,
+                          'overlayAsset': overlayAsset,
+                          'squareSize': squareSize,
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.yellow,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Use this image',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Retake image',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
         ],
       ),
     );
