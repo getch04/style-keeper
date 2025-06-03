@@ -15,10 +15,7 @@ class NewShoppingListPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        AddPhotoSection(
-          label: 'Add photo',
-          onTap: () {},
-        ),
+        const AddPhotoSection(),
         const SizedBox(height: 32),
         TextField(
           decoration: InputDecoration(

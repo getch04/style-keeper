@@ -18,10 +18,7 @@ class CreateStylePage extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           children: [
             // Add photo section
-            AddPhotoSection(
-              label: 'Add photo',
-              onTap: () {},
-            ),
+            const AddPhotoSection(),
             const SizedBox(height: 22),
             // Name input and Add items button
             Row(

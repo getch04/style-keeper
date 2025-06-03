@@ -5,6 +5,7 @@ import 'package:style_keeper/features/home/presentation/home_page.dart';
 import 'package:style_keeper/features/styles/presentation/screens/create_style_page.dart';
 import 'package:style_keeper/features/styles/presentation/screens/styles_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
+import 'package:style_keeper/features/trip_planning/presentation/screens/add_trip_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/wardrobe_page.dart';
@@ -116,6 +117,17 @@ class AppRouter {
         ),
       ),
       GoRoute(
+        path: '/${AddTripPage.name}',
+        name: AddTripPage.name,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child:  AddTripPage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
         path: '/${ChooseSamplePage.name}',
         name: ChooseSamplePage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
@@ -148,6 +160,7 @@ class AppRouter {
           },
         ),
       ),
+
     ],
   );
 }
