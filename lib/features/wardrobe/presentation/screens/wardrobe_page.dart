@@ -3,8 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
-import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 import 'package:style_keeper/features/trip_planning/presentation/screens/add_trip_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/my_clothes_tab.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
@@ -23,6 +23,14 @@ class WardrobePage extends StatefulWidget {
 class _WardrobePageState extends State<WardrobePage> {
   int _selectedTab = 0;
   final List<String> _tabs = ['My clothes', 'Shopping', 'Trip list'];
+  Key _clothesTabKey = UniqueKey();
+
+  void _refreshClothesTab() {
+    setState(() {
+      _clothesTabKey = UniqueKey();
+    });
+  }
+
   void _showNoticeDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -64,7 +72,9 @@ class _WardrobePageState extends State<WardrobePage> {
                     elevation: 0,
                   ),
                   onPressed: () {
-                    context.push('/${AddClothingPage.name}');
+                    context.push('/${AddClothingPage.name}', extra: {
+                      'onClothingSaved': _refreshClothesTab,
+                    });
                   },
                   icon: SvgPicture.asset(
                     AppImages.plus,
@@ -74,7 +84,7 @@ class _WardrobePageState extends State<WardrobePage> {
                   label: const Text(
                     'Add new CLOTHING',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w700,
                       fontSize: 12,
                     ),
                   ),
@@ -108,7 +118,7 @@ class _WardrobePageState extends State<WardrobePage> {
                       label: const Text(
                         'Add new LIST',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 12,
                         ),
                       ),
@@ -140,7 +150,7 @@ class _WardrobePageState extends State<WardrobePage> {
                       label: const Text(
                         'Add new TRIP',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                           fontSize: 12,
                         ),
                       ),
@@ -192,7 +202,7 @@ class _WardrobePageState extends State<WardrobePage> {
                               AppImages.shopping,
                               width: 28,
                               color: isSelected
-                                  ? AppColors.darkGray
+                                  ? AppColors.white
                                   : AppColors.darkGray,
                             ),
                           if (index == 2)
@@ -200,7 +210,7 @@ class _WardrobePageState extends State<WardrobePage> {
                               AppImages.tripList,
                               width: 28,
                               color: isSelected
-                                  ? AppColors.darkGray
+                                  ? AppColors.white
                                   : AppColors.darkGray,
                             ),
                           const SizedBox(width: 8),
@@ -241,7 +251,7 @@ class _WardrobePageState extends State<WardrobePage> {
               children: [
                 SvgPicture.asset(
                   AppImages.search,
-                  width: 28,
+                  width: 22,
                   color: AppColors.darkGray,
                 ),
                 const SizedBox(width: 12),
@@ -249,8 +259,8 @@ class _WardrobePageState extends State<WardrobePage> {
                   'Search',
                   style: TextStyle(
                     color: AppColors.darkGray,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
                   ),
                 ),
               ],
@@ -258,7 +268,7 @@ class _WardrobePageState extends State<WardrobePage> {
           ),
           const SizedBox(height: 24),
           _selectedTab == 0
-              ? const MyClothesTab()
+              ? MyClothesTab(key: _clothesTabKey)
               : _selectedTab == 1
                   ? const ShoppingTab()
                   : const TripListTab(),

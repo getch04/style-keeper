@@ -266,7 +266,10 @@ class CameraPreviewPage extends StatelessWidget {
                   SvgPicture.asset(
                     overlayAsset,
                     width: squareSize * 0.55,
-                    color: Colors.white.withOpacity(0.7),
+                    colorFilter: const ColorFilter.mode(
+                      Colors.white,
+                      BlendMode.srcIn,
+                    ),
                     fit: BoxFit.fill,
                   ),
                 ],

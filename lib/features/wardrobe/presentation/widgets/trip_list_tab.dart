@@ -69,8 +69,8 @@ class _TripCard extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -81,7 +81,7 @@ class _TripCard extends StatelessWidget {
                   style: const TextStyle(
                     color: Color(0xFFBDBDBD),
                     fontWeight: FontWeight.w500,
-                    fontSize: 15,
+                    fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -89,8 +89,8 @@ class _TripCard extends StatelessWidget {
                   'Clothes: $clothes',
                   style: const TextStyle(
                     color: AppColors.yellow,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
                   ),
                 ),
               ],

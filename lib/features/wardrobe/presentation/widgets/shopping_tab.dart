@@ -27,7 +27,7 @@ class _ShoppingListCard extends StatelessWidget {
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -55,8 +55,8 @@ class _ShoppingListCard extends StatelessWidget {
                         ? 'VERY LONG LIST TITLE...'
                         : 'ОЧЕНЬ ДЛИННОЕ НА...',
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -67,7 +67,7 @@ class _ShoppingListCard extends StatelessWidget {
                     style: const TextStyle(
                       color: Color(0xFFBDBDBD),
                       fontWeight: FontWeight.w500,
-                      fontSize: 15,
+                      fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -75,8 +75,8 @@ class _ShoppingListCard extends StatelessWidget {
                     isEnglish ? 'Spent: 222,53' : 'Потрачено: 222,53',
                     style: const TextStyle(
                       color: AppColors.yellow,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
                     ),
                   ),
                 ],

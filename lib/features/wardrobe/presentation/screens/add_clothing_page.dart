@@ -14,7 +14,12 @@ import 'package:uuid/uuid.dart';
 
 class AddClothingPage extends StatefulWidget {
   static const String name = "add-product";
-  const AddClothingPage({super.key});
+  final VoidCallback? onClothingSaved;
+
+  const AddClothingPage({
+    super.key,
+    this.onClothingSaved,
+  });
 
   @override
   State<AddClothingPage> createState() => _AddClothingPageState();
@@ -28,13 +33,41 @@ class _AddClothingPageState extends State<AddClothingPage> {
   final TextEditingController _priceController = TextEditingController();
   bool _isSaving = false;
 
+  bool isEditMode = false;
+  ClothingItem? itemToEdit;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final extra = GoRouterState.of(context).extra;
-    if (extra is Map<String, dynamic> && extra['imagePath'] != null) {
-      imagePath = extra['imagePath'] as String;
+    if (!_isInitialized) {
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>;
+      isEditMode = extra['isEditMode'] as bool? ?? false;
+      itemToEdit = extra['itemToEdit'] as ClothingItem?;
+
+      if (isEditMode && itemToEdit != null) {
+        _loadExistingData();
+      } else if (!isEditMode) {
+        if (extra['imagePath'] != null) {
+          imagePath = extra['imagePath'] as String;
+        }
+      }
+      _isInitialized = true;
     }
+  }
+
+  void _loadExistingData() {
+    final item = itemToEdit!;
+    imagePath = item.imagePath;
+    _nameController.text = item.name;
+    _brandController.text = item.brand;
+    _placeController.text = item.placeOfPurchase;
+    _priceController.text = item.price.toString();
   }
 
   @override
@@ -49,17 +82,25 @@ class _AddClothingPageState extends State<AddClothingPage> {
   Future<void> _saveClothingItem() async {
     if (imagePath == null || _nameController.text.isEmpty) return;
     setState(() => _isSaving = true);
+
     final item = ClothingItem(
-      id: const Uuid().v4(),
+      id: isEditMode ? itemToEdit!.id : const Uuid().v4(),
       name: _nameController.text.trim(),
       brand: _brandController.text.trim(),
       placeOfPurchase: _placeController.text.trim(),
       price: double.tryParse(_priceController.text.trim()) ?? 0.0,
       imagePath: imagePath!,
-      createdAt: DateTime.now(),
+      createdAt: isEditMode ? itemToEdit!.createdAt : DateTime.now(),
     );
-    await WardrobeHiveService().addClothingItem(item);
+
+    if (isEditMode) {
+      await WardrobeHiveService().updateClothingItem(item);
+    } else {
+      await WardrobeHiveService().addClothingItem(item);
+    }
+
     setState(() => _isSaving = false);
+    widget.onClothingSaved?.call();
     if (mounted) context.go('/wardrobe');
   }
 
@@ -85,7 +126,7 @@ class _AddClothingPageState extends State<AddClothingPage> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          if (imagePath == null) const AddPhotoSection(),
+          if (imagePath == null && !isEditMode) const AddPhotoSection(),
           if (imagePath != null)
             Container(
               width: 400,
@@ -108,20 +149,25 @@ class _AddClothingPageState extends State<AddClothingPage> {
                       ),
                     ),
                     const SizedBox(width: 30),
-                    Container(
-                      width: 45,
-                      height: 45,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: SvgPicture.asset(
-                          AppImages.delete,
-                          // width: 24,
-                          // height: 24,
-                          color: Colors.white,
+                    GestureDetector(
+                      onTap: () {
+                        if (!isEditMode) {
+                          setState(() => imagePath = null);
+                        }
+                      },
+                      child: Container(
+                        width: 45,
+                        height: 45,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: SvgPicture.asset(
+                            AppImages.delete,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -163,7 +209,7 @@ class _AddClothingPageState extends State<AddClothingPage> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: AppColors.white),
                     )
-                  : const Text('Save and continue'),
+                  : Text(isEditMode ? 'Update' : 'Save and continue'),
             ),
           ),
         ],
