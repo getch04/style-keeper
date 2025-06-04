@@ -8,6 +8,7 @@ import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/clothing_detail_page.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class MyClothesTab extends StatefulWidget {
@@ -102,15 +103,10 @@ class _MyClothesTabState extends State<MyClothesTab> {
                 if (_longPressedIndex != null) {
                   setState(() => _longPressedIndex = null);
                 } else {
-                  context.push('/${AddClothingPage.name}', extra: {
-                    'isEditMode': true,
-                    'itemToEdit': item,
-                    'onClothingSaved': () {
-                      setState(() {
-                        _loadClothes();
-                      });
-                    },
-                  });
+                  context.push(
+                    '/${ClothingDetailPage.name}',
+                    extra: item,
+                  );
                 }
               },
               onLongPress: () {

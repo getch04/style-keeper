@@ -26,7 +26,7 @@ class _ShoppingListCard extends StatelessWidget {
         context.push('/shopping-list-detail');
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -42,8 +42,8 @@ class _ShoppingListCard extends StatelessWidget {
         child: Row(
           children: [
             const ImagePlaceholer(
-              width: 120,
-              height: 100,
+              width: 100,
+              height: 80,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -57,6 +57,7 @@ class _ShoppingListCard extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
+                      color: AppColors.darkGray,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

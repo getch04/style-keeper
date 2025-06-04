@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 
 class ClothingDetailPage extends StatelessWidget {
   static const String name = "clothing-detail";
@@ -9,6 +14,7 @@ class ClothingDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final item = GoRouterState.of(context).extra as ClothingItem;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -18,31 +24,15 @@ class ClothingDetailPage extends StatelessWidget {
             bottomLeft: Radius.circular(32),
             bottomRight: Radius.circular(32),
           ),
-          child: Image.network(
-            'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80',
-            width: double.infinity,
-            height: 260,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Container(
-                width: double.infinity,
-                height: 260,
-                color: Colors.grey.shade200,
-                child: const Center(
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(AppColors.yellow),
-                      strokeWidth: 4,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
+          child: // we will receive a path to the iamge, so it is not network image
+              item.imagePath != ''
+                  ? Image.file(
+                      File(item.imagePath),
+                      width: double.infinity,
+                      height: 260,
+                      fit: BoxFit.cover,
+                    )
+                  : const SizedBox(),
         ),
         // Details
         Padding(
@@ -53,21 +43,21 @@ class ClothingDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(children: [
-                    const Column(
+                    Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Jacket - Gray Summer',
-                            style: TextStyle(
+                            item.name,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 22,
                               color: Colors.black,
                             ),
                           ),
-                          SizedBox(height: 6),
+                          const SizedBox(height: 6),
                           Text(
-                            'Tolik Lisiy Pryanik   |   Josckob City',
-                            style: TextStyle(
+                            '${item.brand}   |   ${item.placeOfPurchase}',
+                            style: const TextStyle(
                               color: Colors.grey,
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
@@ -75,12 +65,20 @@ class ClothingDetailPage extends StatelessWidget {
                           ),
                         ]),
                     const Spacer(),
-                    SvgPicture.asset(AppImages.coloredEdit)
+                    InkWell(
+                      onTap: () {
+                        context.push('/${AddClothingPage.name}', extra: {
+                          'isEditMode': true,
+                          'itemToEdit': item,
+                        });
+                      },
+                      child: SvgPicture.asset(AppImages.coloredEdit),
+                    ),
                   ]),
                   const SizedBox(height: 16),
-                  const Text(
-                    '1200',
-                    style: TextStyle(
+                  Text(
+                    '${item.price} ₴',
+                    style: const TextStyle(
                       color: AppColors.yellow,
                       fontWeight: FontWeight.bold,
                       fontSize: 28,

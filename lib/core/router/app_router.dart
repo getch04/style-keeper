@@ -121,23 +121,23 @@ class AppRouter {
         name: AddTripPage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
-          child: const AppMainPage(child:  AddTripPage()),
+          child: const AppMainPage(child: AddTripPage()),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
         ),
       ),
-      GoRoute(
-        path: '/${ChooseSamplePage.name}',
-        name: ChooseSamplePage.name,
-        pageBuilder: (context, state) => CustomTransitionPage(
-          key: state.pageKey,
-          child: const ChooseSamplePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      ),
+      // GoRoute(
+      //   path: '/${ChooseSamplePage.name}',
+      //   name: ChooseSamplePage.name,
+      //   pageBuilder: (context, state) => CustomTransitionPage(
+      //     key: state.pageKey,
+      //     child: const ChooseSamplePage(),
+      //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      //       return FadeTransition(opacity: animation, child: child);
+      //     },
+      //   ),
+      // ),
       GoRoute(
         path: '/${CameraOverlayPage.name}',
         name: CameraOverlayPage.name,
@@ -160,7 +160,6 @@ class AppRouter {
           },
         ),
       ),
-
     ],
   );
 }

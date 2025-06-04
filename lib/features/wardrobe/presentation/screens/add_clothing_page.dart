@@ -5,8 +5,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/core/plugin/flutter_camera_overlay.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
 import 'package:style_keeper/shared/widgets/notice_dialog.dart';
@@ -111,7 +113,7 @@ class _AddClothingPageState extends State<AddClothingPage> {
       barrierColor: Colors.black.withOpacity(0.85),
       builder: (context) => NoticeDialog(
         onContinue: () {
-          context.push('/${ChooseSamplePage.name}');
+          context.push('/${CameraOverlayPage.name}');
         },
         onCancel: () {
           GoRouter.of(context).pop();

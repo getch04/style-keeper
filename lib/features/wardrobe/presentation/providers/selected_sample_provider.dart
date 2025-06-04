@@ -4,6 +4,7 @@ class SelectedSampleProvider extends ChangeNotifier {
   int _selectedIndex = 1;
 
   int get selectedIndex => _selectedIndex;
+  bool get hasSelectedSample => _selectedIndex != 0;
 
   void setSelectedIndex(int index) {
     _selectedIndex = index;

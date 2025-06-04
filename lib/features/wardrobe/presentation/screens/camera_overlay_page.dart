@@ -66,8 +66,9 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
     final double screenHeight = MediaQuery.of(context).size.height;
     // Make the box as large as possible, with padding
     final double squareSize = screenWidth * 0.7; // 16px padding on each side
-    final selectedIndex =
-        Provider.of<SelectedSampleProvider>(context).selectedIndex;
+    final selectedProvider = Provider.of<SelectedSampleProvider>(context);
+    final selectedIndex = selectedProvider.selectedIndex;
+    final hasOverlay = selectedProvider.hasSelectedSample;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -77,10 +78,20 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
           _isCameraInitialized && _controller != null
               ? CameraOverlay(
                   _controller!.description,
-                  (XFile file) {
-                    print(file);
+                  (XFile file) async {
+                    if (!mounted) return;
+                    context.push(
+                      '/${AddClothingPage.name}',
+                      extra: {
+                        'imagePath': file.path,
+                        'overlayIndex': selectedIndex,
+                        'overlayAsset':
+                            hasOverlay ? icons[selectedIndex] : null,
+                        'squareSize': squareSize,
+                      },
+                    );
                   },
-                  imagePath: icons[selectedIndex],
+                  imagePath: hasOverlay ? icons[selectedIndex] : icons[0],
                 )
               : const Center(
                   child: CircularProgressIndicator(),
@@ -122,15 +133,15 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                 children: [
                   // Sample label
                   const Padding(
-                    padding: EdgeInsets.only(left: 8, bottom: 8),
+                    padding: EdgeInsets.only(left: 32, bottom: 8),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Sample',
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
                         ),
                       ),
                     ),
@@ -140,7 +151,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                     height: 80,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.only(left: 32),
                       itemCount: icons.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 16),
                       itemBuilder: (context, index) {
@@ -152,8 +163,8 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                                 .setSelectedIndex(index);
                           },
                           child: Container(
-                            width: 64,
-                            height: 64,
+                            width: 75,
+                            height: 80,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(14),
@@ -184,18 +195,27 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                           _controller!.value.isInitialized) {
                         final XFile file = await _controller!.takePicture();
                         if (!mounted) return;
-                        Router.neglect(
-                          context,
-                          () => context.push(
-                            '/${CameraPreviewPage.name}',
-                            extra: {
-                              'imagePath': file.path,
-                              'overlayIndex': selectedIndex,
-                              'overlayAsset': icons[selectedIndex],
-                              'squareSize': squareSize,
-                            },
-                          ),
+                        context.push(
+                          '/${AddClothingPage.name}',
+                          extra: {
+                            'imagePath': file.path,
+                            'overlayIndex': selectedIndex,
+                            'overlayAsset': icons[selectedIndex],
+                            'squareSize': squareSize,
+                          },
                         );
+                        // Router.neglect(
+                        //   context,
+                        //   () => context.push(
+                        //     '/${CameraPreviewPage.name}',
+                        //     extra: {
+                        //       'imagePath': file.path,
+                        //       'overlayIndex': selectedIndex,
+                        //       'overlayAsset': icons[selectedIndex],
+                        //       'squareSize': squareSize,
+                        //     },
+                        //   ),
+                        // );
                       }
                     },
                     child: Container(

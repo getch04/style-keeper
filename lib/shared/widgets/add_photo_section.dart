@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
 import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 
@@ -26,7 +27,7 @@ class AddPhotoSection extends StatelessWidget {
       barrierColor: Colors.black.withOpacity(0.85),
       builder: (context) => NoticeDialog(
         onContinue: () {
-          context.push('/${ChooseSamplePage.name}');
+          context.push('/${CameraOverlayPage.name}');
         },
         onCancel: () {
           GoRouter.of(context).pop();

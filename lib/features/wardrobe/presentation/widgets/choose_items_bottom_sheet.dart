@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
+import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class ChooseItemsBottomSheet extends StatefulWidget {
@@ -15,7 +19,107 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
     with SingleTickerProviderStateMixin {
   int selectedTab = 0;
   final List<String> tabs = ['All clothes', 'Completed looks', 'Recomendation'];
-  final Set<int> selectedItems = {1, 2};
+  final Set<int> selectedItems = {};
+  late Future<List<ClothingItem>> _clothesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadClothes();
+  }
+
+  void _loadClothes() {
+    _clothesFuture = WardrobeHiveService().getAllClothingItems();
+  }
+
+  Widget _buildAllClothesTab() {
+    return FutureBuilder<List<ClothingItem>>(
+      future: _clothesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final clothes = snapshot.data ?? [];
+        if (clothes.isEmpty) {
+          return const Center(
+            child: Text(
+              'No clothes available',
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          );
+        }
+
+        return GridView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          itemCount: clothes.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 20,
+            crossAxisSpacing: 20,
+            childAspectRatio: 1.1,
+          ),
+          itemBuilder: (context, index) {
+            final item = clothes[index];
+            final isSelected = selectedItems.contains(index);
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) {
+                    selectedItems.remove(index);
+                  } else {
+                    selectedItems.add(index);
+                  }
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: item.imagePath.isNotEmpty
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.file(
+                                File(item.imagePath),
+                                width: double.infinity,
+                                height: 140,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : const ImagePlaceholer(height: 140),
+                    ),
+                    Positioned(
+                      bottom: 12,
+                      right: 12,
+                      child: SvgPicture.asset(
+                        isSelected
+                            ? AppImages.circleCheck
+                            : AppImages.circleUncheck,
+                        width: 32,
+                        height: 32,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,181 +196,134 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
                 const SizedBox(height: 18),
                 // Content
                 Expanded(
-                  child: selectedTab == 1
-                      ? ListView.separated(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          itemCount: 3,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 18),
-                          itemBuilder: (context, index) {
-                            // Dummy data for looks
-                            final lookTitles = [
-                              'Summer vibes 2002',
-                              'Look #1',
-                              'New season 2021',
-                            ];
-                            final lookItems = [12, 3, 2];
-                            final isSelected = selectedItems.contains(index);
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(18),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Checkbox
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 12, right: 8),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (isSelected) {
-                                            selectedItems.remove(index);
-                                          } else {
-                                            selectedItems.add(index);
-                                          }
-                                        });
-                                      },
-                                      child: SvgPicture.asset(
-                                        isSelected
-                                            ? AppImages.circleCheck
-                                            : AppImages.circleUncheck,
-                                        width: 28,
-                                        height: 28,
+                  child: selectedTab == 0
+                      ? _buildAllClothesTab()
+                      : selectedTab == 1
+                          ? ListView.separated(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 4),
+                              itemCount: 3,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 18),
+                              itemBuilder: (context, index) {
+                                // Dummy data for looks
+                                final lookTitles = [
+                                  'Summer vibes 2002',
+                                  'Look #1',
+                                  'New season 2021',
+                                ];
+                                final lookItems = [12, 3, 2];
+                                final isSelected =
+                                    selectedItems.contains(index);
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.08),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, 4),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 18, horizontal: 0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // Checkbox
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 12, right: 8),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (isSelected) {
+                                                selectedItems.remove(index);
+                                              } else {
+                                                selectedItems.add(index);
+                                              }
+                                            });
+                                          },
+                                          child: SvgPicture.asset(
+                                            isSelected
+                                                ? AppImages.circleCheck
+                                                : AppImages.circleUncheck,
+                                            width: 28,
+                                            height: 28,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 18, horizontal: 0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Expanded(
-                                                child: Text(
-                                                  lookTitles[index],
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w700,
-                                                    fontSize: 18,
-                                                    color: Colors.black,
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      lookTitles[index],
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        fontSize: 18,
+                                                        color: Colors.black,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
                                                   ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                  Text(
+                                                    '${lookItems[index]} items',
+                                                    style: TextStyle(
+                                                      color:
+                                                          Colors.grey.shade500,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 15,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+                                              SingleChildScrollView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: Row(
+                                                  children: List.generate(
+                                                    3,
+                                                    (imgIdx) => Padding(
+                                                      padding: EdgeInsets.only(
+                                                          right: imgIdx < 2
+                                                              ? 12
+                                                              : 0),
+                                                      child:
+                                                          const ImagePlaceholer(
+                                                        width: 140,
+                                                        height: 100,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                              Text(
-                                                '${lookItems[index]} items',
-                                                style: TextStyle(
-                                                  color: Colors.grey.shade500,
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 15,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 16),
                                             ],
                                           ),
-                                          const SizedBox(height: 10),
-                                          SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: Row(
-                                              children: List.generate(
-                                                3,
-                                                (imgIdx) => Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right:
-                                                          imgIdx < 2 ? 12 : 0),
-                                                  child: const ImagePlaceholer(
-                                                    width: 140,
-                                                    height: 100,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                        )
-                      : GridView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          itemCount: 8,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 20,
-                            crossAxisSpacing: 20,
-                            childAspectRatio: 1.1,
-                          ),
-                          itemBuilder: (context, index) {
-                            final isSelected = selectedItems.contains(index);
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (isSelected) {
-                                    selectedItems.remove(index);
-                                  } else {
-                                    selectedItems.add(index);
-                                  }
-                                });
+                                );
                               },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Stack(
-                                  children: [
-                                    const Padding(
-                                      padding: EdgeInsets.all(20),
-                                      child: ImagePlaceholer(
-                                        height: 140,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      bottom: 12,
-                                      right: 12,
-                                      child: SvgPicture.asset(
-                                        isSelected
-                                            ? AppImages.circleCheck
-                                            : AppImages.circleUncheck,
-                                        width: 32,
-                                        height: 32,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                            )
+                          : const Center(
+                              child: Text('Recommendations coming soon'),
+                            ),
                 ),
               ],
             ),
@@ -289,7 +346,7 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
                       color: Colors.white,
                     ),
                     label: Text(
-                      'Add ${selectedItems.length} Items',
+                      'Add ${selectedItems.length} Items',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
