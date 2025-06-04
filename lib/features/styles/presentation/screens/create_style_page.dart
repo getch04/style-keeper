@@ -59,7 +59,7 @@ class CreateStylePage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: 56,
+                  height: 40,
                   child: ElevatedButton.icon(
                     onPressed: () {},
                     icon: SvgPicture.asset(AppImages.plus,
@@ -67,8 +67,8 @@ class CreateStylePage extends StatelessWidget {
                     label: const Text(
                       'Add items',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -97,14 +97,14 @@ class CreateStylePage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.yellow,
                   foregroundColor: AppColors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 0,
                   textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
                   ),
                 ),
                 child: const Text('Save and continue'),
@@ -154,6 +154,7 @@ class _LookListItem extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 16,
+                    color: AppColors.darkGray,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -164,7 +165,7 @@ class _LookListItem extends StatelessWidget {
                   style: TextStyle(
                     color: AppColors.yellow,
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: 12,
                   ),
                 ),
               ],

@@ -1,8 +1,10 @@
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'clothing_item.g.dart';
 
 @HiveType(typeId: 0)
+@JsonSerializable()
 class ClothingItem extends HiveObject {
   @HiveField(0)
   String id;
@@ -34,6 +36,14 @@ class ClothingItem extends HiveObject {
     required this.imagePath,
     required this.createdAt,
   });
+
+  factory ClothingItem.fromJson(Map<String, dynamic> json) {
+    return _$ClothingItemFromJson(json);
+  }
+
+  Map<String, dynamic> toJson() {
+    return _$ClothingItemToJson(this);
+  }
 
   ClothingItem copyWith({
     String? id,
@@ -67,18 +77,5 @@ class ClothingItem extends HiveObject {
       imagePath: other.imagePath.isNotEmpty ? other.imagePath : imagePath,
       createdAt: other.createdAt ?? createdAt,
     );
-  }
-
-  //to json
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'brand': brand,
-      'placeOfPurchase': placeOfPurchase,
-      'price': price,
-      'imagePath': imagePath,
-      'createdAt': createdAt.toIso8601String(),
-    };
   }
 }

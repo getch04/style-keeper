@@ -57,3 +57,28 @@ class ClothingItemAdapter extends TypeAdapter<ClothingItem> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+ClothingItem _$ClothingItemFromJson(Map<String, dynamic> json) => ClothingItem(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      brand: json['brand'] as String,
+      placeOfPurchase: json['placeOfPurchase'] as String,
+      price: (json['price'] as num).toDouble(),
+      imagePath: json['imagePath'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+
+Map<String, dynamic> _$ClothingItemToJson(ClothingItem instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'brand': instance.brand,
+      'placeOfPurchase': instance.placeOfPurchase,
+      'price': instance.price,
+      'imagePath': instance.imagePath,
+      'createdAt': instance.createdAt.toIso8601String(),
+    };

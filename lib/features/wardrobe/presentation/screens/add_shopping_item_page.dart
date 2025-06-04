@@ -2,30 +2,25 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
-import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
-import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
-import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
-import 'package:style_keeper/shared/widgets/notice_dialog.dart';
-import 'package:uuid/uuid.dart';
+import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
-class AddClothingPage extends StatefulWidget {
-  static const String name = "add-product";
-  final VoidCallback? onClothingSaved;
+class AddShoppingItemPage extends StatefulWidget {
+  static const String name = "add-shopping-item";
+  final VoidCallback? onShoppingItemSaved;
 
-  const AddClothingPage({
+  const AddShoppingItemPage({
     super.key,
-    this.onClothingSaved,
+    this.onShoppingItemSaved,
   });
 
   @override
-  State<AddClothingPage> createState() => _AddClothingPageState();
+  State<AddShoppingItemPage> createState() => _AddShoppingItemPageState();
 }
 
-class _AddClothingPageState extends State<AddClothingPage> {
+class _AddShoppingItemPageState extends State<AddShoppingItemPage> {
   String? imagePath;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _brandController = TextEditingController();
@@ -33,41 +28,9 @@ class _AddClothingPageState extends State<AddClothingPage> {
   final TextEditingController _priceController = TextEditingController();
   bool _isSaving = false;
 
-  bool isEditMode = false;
-  ClothingItem? itemToEdit;
-  bool _isInitialized = false;
-
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      final extra = GoRouterState.of(context).extra as Map<String, dynamic>;
-      isEditMode = extra['isEditMode'] as bool? ?? false;
-      itemToEdit = extra['itemToEdit'] as ClothingItem?;
-
-      if (isEditMode && itemToEdit != null) {
-        _loadExistingData();
-      } else if (!isEditMode) {
-        if (extra['imagePath'] != null) {
-          imagePath = extra['imagePath'] as String;
-        }
-      }
-      _isInitialized = true;
-    }
-  }
-
-  void _loadExistingData() {
-    final item = itemToEdit!;
-    imagePath = item.imagePath;
-    _nameController.text = item.name;
-    _brandController.text = item.brand;
-    _placeController.text = item.placeOfPurchase;
-    _priceController.text = item.price.toString();
   }
 
   @override
@@ -83,42 +46,26 @@ class _AddClothingPageState extends State<AddClothingPage> {
     if (imagePath == null || _nameController.text.isEmpty) return;
     setState(() => _isSaving = true);
 
-    final item = ClothingItem(
-      id: isEditMode ? itemToEdit!.id : const Uuid().v4(),
-      name: _nameController.text.trim(),
-      brand: _brandController.text.trim(),
-      placeOfPurchase: _placeController.text.trim(),
-      price: double.tryParse(_priceController.text.trim()) ?? 0.0,
-      imagePath: imagePath!,
-      createdAt: isEditMode ? itemToEdit!.createdAt : DateTime.now(),
-    );
-
-    if (isEditMode) {
-      await WardrobeHiveService().updateClothingItem(item);
-    } else {
-      await WardrobeHiveService().addClothingItem(item);
-    }
-
     setState(() => _isSaving = false);
-    widget.onClothingSaved?.call();
-    if (mounted) context.go('/wardrobe');
+    // widget.onShoppingItemSaved?.call();
+    // if (mounted) context.go('/wardrobe');
   }
 
-  void _showNoticeDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.85),
-      builder: (context) => NoticeDialog(
-        onContinue: () {
-          context.push('/${CameraOverlayPage.name}');
-        },
-        onCancel: () {
-          GoRouter.of(context).pop();
-        },
-      ),
-    );
-  }
+  // void _showNoticeDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     barrierColor: Colors.black.withOpacity(0.85),
+  //     builder: (context) => NoticeDialog(
+  //       onContinue: () {
+  //         context.push('/${CameraOverlayPage.name}');
+  //       },
+  //       onCancel: () {
+  //         GoRouter.of(context).pop();
+  //       },
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +73,7 @@ class _AddClothingPageState extends State<AddClothingPage> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          if (imagePath == null && !isEditMode) const AddPhotoSection(),
+          if (imagePath == null) const AddPhotoSection(),
           if (imagePath != null)
             Container(
               width: 400,
@@ -151,7 +98,7 @@ class _AddClothingPageState extends State<AddClothingPage> {
                     const SizedBox(width: 30),
                     GestureDetector(
                       onTap: () {
-                        if (!isEditMode) {
+                        if (imagePath != null) {
                           setState(() => imagePath = null);
                         }
                       },
@@ -210,7 +157,7 @@ class _AddClothingPageState extends State<AddClothingPage> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: AppColors.white),
                     )
-                  : Text(isEditMode ? 'Update' : 'Save and continue'),
+                  : const Text('Save and continue'),
             ),
           ),
         ],
