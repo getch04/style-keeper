@@ -82,8 +82,8 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
       fit: StackFit.expand,
       children: [
         CameraPreview(controller),
-         Padding(
-          padding: EdgeInsets.only(bottom: 105),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 105),
           child: OverlayShape(
             imagePath: widget.imagePath,
           ),
@@ -119,29 +119,31 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Material(
-                color: Colors.transparent,
-                child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.black12,
-                      shape: BoxShape.circle,
-                    ),
-                    margin: const EdgeInsets.all(25),
-                    child: IconButton(
-                      enableFeedback: true,
-                      color: Colors.white,
-                      onPressed: () async {
-                        for (int i = 10; i > 0; i--) {
-                          await HapticFeedback.vibrate();
-                        }
+              color: Colors.transparent,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+                margin: const EdgeInsets.all(25),
+                child: IconButton(
+                  enableFeedback: true,
+                  color: Colors.transparent,
+                  onPressed: () async {
+                    for (int i = 10; i > 0; i--) {
+                      await HapticFeedback.vibrate();
+                    }
 
-                        XFile file = await controller.takePicture();
-                        widget.onCapture(file);
-                      },
-                      icon: const Icon(
-                        Icons.camera,
-                      ),
-                      iconSize: 72,
-                    ))),
+                    XFile file = await controller.takePicture();
+                    widget.onCapture(file);
+                  },
+                  icon: const Icon(
+                    Icons.camera,
+                  ),
+                  iconSize: 72,
+                ),
+              ),
+            ),
           ),
       ],
     );

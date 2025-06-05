@@ -128,9 +128,10 @@ class _AddClothingPageState extends State<AddClothingPage> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          if (imagePath == null && !isEditMode) const AddPhotoSection(
-            returnTo: AddClothingPage.name,
-          ),
+          if (imagePath == null && !isEditMode)
+            const AddPhotoSection(
+              returnTo: AddClothingPage.name,
+            ),
           if (imagePath != null)
             Container(
               width: 400,

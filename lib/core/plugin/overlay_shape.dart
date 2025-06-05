@@ -57,7 +57,7 @@ class OverlayShape extends StatelessWidget {
                     width: squareSize,
                     height: squareSize,
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Colors.transparent,
                       borderRadius: BorderRadius.circular(radius),
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image/image.dart' as img;
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
@@ -80,18 +81,55 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
     super.dispose();
   }
 
-  void _handleImageCapture(XFile file) {
+  void _handleImageCapture(XFile file) async {
     if (!mounted) return;
     final selectedProvider =
         Provider.of<SelectedSampleProvider>(context, listen: false);
     final selectedIndex = selectedProvider.selectedIndex;
     final hasOverlay = selectedProvider.hasSelectedSample;
 
+    // Load the captured image
+    final bytes = await File(file.path).readAsBytes();
+    final original = img.decodeImage(bytes);
+    if (original == null) return;
+
+    // Get screen and overlay sizes
+    final screenSize = MediaQuery.of(context).size;
+    final previewWidth = screenSize.width;
+    final previewHeight = screenSize.height;
+    final squareSize = previewWidth - 32;
+    final squareLeft = (previewWidth - squareSize) / 2;
+    final squareTop = (previewHeight - squareSize) / 2;
+
+    // Map overlay rect to image coordinates
+    final scaleX = original.width / previewWidth;
+    final scaleY = original.height / previewHeight;
+    final cropX = (squareLeft * scaleX).round();
+    final cropY = (squareTop * scaleY).round();
+    final cropSize = (squareSize * scaleX).round(); // Use scaleX for square
+
+    // Ensure crop rect is within image bounds
+    final safeCropX = cropX.clamp(0, original.width - cropSize);
+    final safeCropY = cropY.clamp(0, original.height - cropSize);
+    final safeCropSize = cropSize
+        .clamp(0, original.width - safeCropX)
+        .clamp(0, original.height - safeCropY);
+
+    final cropped = img.copyCrop(
+      original,
+      x: safeCropX,
+      y: safeCropY,
+      width: safeCropSize,
+      height: safeCropSize,
+    );
+    final croppedPath = file.path.replaceFirst('.jpg', '_cropped.jpg');
+    await File(croppedPath).writeAsBytes(img.encodeJpg(cropped));
+
     final extra = {
-      'imagePath': file.path,
+      'imagePath': croppedPath,
       'overlayIndex': selectedIndex,
       'overlayAsset': hasOverlay ? icons[selectedIndex] : null,
-      'squareSize': MediaQuery.of(context).size.width - 32,
+      'squareSize': squareSize,
     };
 
     // Route based on returnTo parameter
@@ -148,7 +186,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
             child: Padding(
               padding: const EdgeInsets.only(left: 16, top: 8),
               child: InkWell(
-                onTap: () => Navigator.of(context).pop(),
+                onTap: () => context.pop(),
                 child: Row(
                   children: [
                     SvgPicture.asset(
@@ -233,7 +271,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 34),
                   // Shutter button
                   GestureDetector(
                     onTap: () async {
@@ -244,16 +282,16 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                       }
                     },
                     child: Container(
-                      width: 80,
-                      height: 80,
+                      width: 60,
+                      height: 60,
                       decoration: const BoxDecoration(
                         color: AppColors.yellow,
                         shape: BoxShape.circle,
                       ),
                       child: Center(
                         child: Container(
-                          width: 56,
-                          height: 56,
+                          width: 36,
+                          height: 36,
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -262,6 +300,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 4),
                 ],
               ),
             ),
