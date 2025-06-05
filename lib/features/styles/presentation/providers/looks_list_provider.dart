@@ -18,6 +18,9 @@ class LooksListProvider extends ChangeNotifier {
   String? _newItemPrice;
   String? _newItemImagePath;
 
+  bool editLooksMode = false;
+  String? looksListIdToBeEdited;
+
   // Getters
   List<LooksListModel> get looksLists => _looksLists;
   bool get isLoading => _isLoading;
@@ -148,6 +151,23 @@ class LooksListProvider extends ChangeNotifier {
     _newItemPlace = null;
     _newItemPrice = null;
     _newItemImagePath = null;
+    notifyListeners();
+  }
+
+  // Get a looks list by ID
+  Future<LooksListModel?> getLooksList(String id) async {
+    return _dbService.getLooksList(id);
+  }
+
+  void updateEditLooksMode(bool value, String listId) {
+    editLooksMode = value;
+    looksListIdToBeEdited = listId;
+    notifyListeners();
+  }
+
+  void clearEditLooksMode() {
+    editLooksMode = false;
+    looksListIdToBeEdited = null;
     notifyListeners();
   }
 }

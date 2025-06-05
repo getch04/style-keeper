@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 
-import '../../domain/models/clothing_item.dart';
-
 class WardrobeProvider extends ChangeNotifier {
   List<ClothingItem> _items = [];
 
@@ -28,6 +26,4 @@ class WardrobeProvider extends ChangeNotifier {
   List<ClothingItem> filterByBrand(String brand) {
     return _items.where((item) => item.brand == brand).toList();
   }
-
-
 }

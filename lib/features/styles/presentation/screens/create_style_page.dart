@@ -27,7 +27,6 @@ class _CreateStylePageState extends State<CreateStylePage> {
   @override
   void initState() {
     super.initState();
-    // Initialize controller with stored value if any
     final provider = context.read<LooksListProvider>();
     if (provider.newListName != null) {
       _nameController.text = provider.newListName!;
@@ -38,15 +37,36 @@ class _CreateStylePageState extends State<CreateStylePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInitialized) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+        final provider = context.read<LooksListProvider>();
+        // Always check for imagePath in GoRouter extra
         final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
         if (extra != null) {
           final imagePath = extra['imagePath'] as String?;
           if (imagePath != null) {
-            context.read<LooksListProvider>().setNewListImagePath(imagePath);
+            provider.setNewListImagePath(imagePath);
           }
         }
+        if (provider.editLooksMode && provider.looksListIdToBeEdited != null) {
+          await _loadLooksList(provider.looksListIdToBeEdited!);
+        }
         _isInitialized = true;
+      });
+    }
+  }
+
+  Future<void> _loadLooksList(String listId) async {
+    final provider = context.read<LooksListProvider>();
+    final looksList = await provider.getLooksList(listId);
+    if (looksList != null) {
+      setState(() {
+        _nameController.text = looksList.name;
+        provider.setNewListName(looksList.name);
+        provider.setNewListImagePath(looksList.imagePath);
+        provider.clearTemporaryItems();
+        for (final item in looksList.items) {
+          provider.addTemporaryItem(item);
+        }
       });
     }
   }
@@ -54,6 +74,7 @@ class _CreateStylePageState extends State<CreateStylePage> {
   @override
   void dispose() {
     _nameController.dispose();
+    context.read<LooksListProvider>().clearEditLooksMode();
     super.dispose();
   }
 
@@ -63,13 +84,29 @@ class _CreateStylePageState extends State<CreateStylePage> {
 
     try {
       final provider = context.read<LooksListProvider>();
-      await provider.createLooksList(
-        name: _nameController.text,
-        imagePath: provider.newListImagePath,
-      );
+      if (provider.editLooksMode && provider.looksListIdToBeEdited != null) {
+        // Update existing list
+        final looksList =
+            await provider.getLooksList(provider.looksListIdToBeEdited!);
+        if (looksList != null) {
+          final updatedList = looksList.copyWith(
+            name: _nameController.text,
+            imagePath: provider.newListImagePath,
+            items: provider.temporaryItems,
+          );
+          await provider.updateLooksList(updatedList);
+        }
+      } else {
+        // Create new list
+        await provider.createLooksList(
+          name: _nameController.text,
+          imagePath: provider.newListImagePath,
+        );
+      }
 
       provider.clearTemporaryItems();
       provider.clearNewListForm();
+      provider.clearEditLooksMode();
       if (mounted) {
         context.go('/styles');
       }
@@ -82,8 +119,9 @@ class _CreateStylePageState extends State<CreateStylePage> {
   Widget build(BuildContext context) {
     return Consumer<LooksListProvider>(
       builder: (context, provider, child) {
+        final isEditing =
+            provider.editLooksMode && provider.looksListIdToBeEdited != null;
         return Scaffold(
-          backgroundColor: const Color(0xFFF4F4F4),
           body: SafeArea(
             child: ListView(
               padding: const EdgeInsets.all(24),
@@ -253,7 +291,8 @@ class _CreateStylePageState extends State<CreateStylePage> {
                               color: AppColors.white,
                             ),
                           )
-                        : const Text('Save and continue'),
+                        : Text(
+                            isEditing ? 'Save Changes' : 'Save and continue'),
                   ),
                 ),
               ],

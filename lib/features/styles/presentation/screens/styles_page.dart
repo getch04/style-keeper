@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
 import 'package:style_keeper/features/styles/presentation/providers/looks_list_provider.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
@@ -18,13 +19,46 @@ class StylesPage extends StatefulWidget {
 }
 
 class _StylesPageState extends State<StylesPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  LooksListProvider? _provider;
+
   @override
   void initState() {
     super.initState();
-    // Load looks lists when the page is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LooksListProvider>().loadLooksLists();
+      if (_provider != null) {
+        _provider!.loadLooksLists();
+      }
     });
+    _searchController.addListener(() {
+      if (mounted) {
+        setState(() {
+          _searchQuery = _searchController.text;
+        });
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _provider = Provider.of<LooksListProvider>(context, listen: false);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    // Do not use context here; _provider is safe
+    _provider = null;
+    super.dispose();
+  }
+
+  List<LooksListModel> _filterLooksLists(List<LooksListModel> looksLists) {
+    if (_searchQuery.isEmpty) return looksLists;
+    return looksLists
+        .where((l) => l.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
   }
 
   @override
@@ -49,6 +83,12 @@ class _StylesPageState extends State<StylesPage> {
                 ],
               ),
               child: TextField(
+                controller: _searchController,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Search',
                   hintStyle: const TextStyle(
@@ -87,7 +127,10 @@ class _StylesPageState extends State<StylesPage> {
                     );
                   }
 
-                  if (provider.looksLists.isEmpty) {
+                  final List<LooksListModel> filteredLooksLists =
+                      _filterLooksLists(provider.looksLists);
+
+                  if (filteredLooksLists.isEmpty) {
                     return const Center(
                       child: Text(
                         'No looks created yet',
@@ -101,17 +144,16 @@ class _StylesPageState extends State<StylesPage> {
 
                   return ListView(
                     children: [
-                      ...provider.looksLists
-                          .map((looksList) => _StyleCollection(
-                                title: looksList.name,
-                                itemCount: looksList.items.length,
-                                images: looksList.items
-                                    .take(3)
-                                    .map((item) => item.imagePath)
-                                    .toList(),
-                              )),
-                      const SizedBox(
-                          height: 80), // Space for the floating button
+                      ...filteredLooksLists.map((looksList) => _StyleCollection(
+                            title: looksList.name,
+                            itemCount: looksList.items.length,
+                            images: looksList.items
+                                .take(3)
+                                .map((item) => item.imagePath)
+                                .toList(),
+                            looksListId: looksList.id,
+                          )),
+                      const SizedBox(height: 80),
                     ],
                   );
                 },
@@ -129,76 +171,85 @@ class _StyleCollection extends StatelessWidget {
   final String title;
   final int itemCount;
   final List<String> images;
+  final String looksListId;
 
   const _StyleCollection({
     required this.title,
     required this.itemCount,
     required this.images,
+    required this.looksListId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.darkGray,
-                ),
-              ),
-              Text(
-                '$itemCount items',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 110,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: images.map((image) {
-                return Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  height: 91,
-                  width: 113,
-                  child: image != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(
-                            File(image),
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : const ImagePlaceholer(),
-                );
-              }).toList(),
+    return GestureDetector(
+      onTap: () {
+        final provider = context.read<LooksListProvider>();
+        provider.updateEditLooksMode(true, looksListId);
+        context.push('/create-style');
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkGray,
+                  ),
+                ),
+                Text(
+                  '$itemCount items',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 110,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: images.map((image) {
+                  return Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    height: 91,
+                    width: 113,
+                    child: image != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(image),
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : const ImagePlaceholer(),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
