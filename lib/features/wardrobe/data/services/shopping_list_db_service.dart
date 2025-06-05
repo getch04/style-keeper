@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
-import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model.dart';
+import 'package:style_keeper/features/wardrobe/data/models/shopping_list_model.dart';
 import 'package:uuid/uuid.dart';
 
 class ShoppingListDbService {

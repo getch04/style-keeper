@@ -13,13 +13,13 @@ class AppMainPage extends StatelessWidget {
     if (location.startsWith('/wardrobe')) {
       return 'Wardrobe';
     } else if (location.startsWith('/looks') ||
-        location.startsWith('/styles')) {
+        location.startsWith('/styles') ||
+        location.startsWith('/create-style')) {
       return 'Looks';
     } else if (location.startsWith('/add-product') ||
-        location.startsWith('/add-shopping-item')) {
+        location.startsWith('/add-shopping-item') ||
+        location.startsWith('/add-looks-item')) {
       return 'New clothing';
-    } else if (location.startsWith('/create-style')) {
-      return 'Create Style';
     } else if (location.startsWith('/new-shopping-list')) {
       return 'New shopping list';
     } else if (location.startsWith('/clothing-detail')) {
@@ -40,7 +40,8 @@ class AppMainPage extends StatelessWidget {
         location.startsWith('/clothing-detail') ||
         location.startsWith('/shopping-list-detail') ||
         location.startsWith('/add-trip') ||
-        location.startsWith('/add-shopping-item')) {
+        location.startsWith('/add-shopping-item') ||
+        location.startsWith('/add-looks-item')) {
       return 1;
     } else if (location.startsWith('/looks') ||
         location.startsWith('/styles') ||
@@ -60,7 +61,8 @@ class AppMainPage extends StatelessWidget {
         location.startsWith('/clothing-detail') ||
         location.startsWith('/shopping-list-detail') ||
         location.startsWith('/add-trip') ||
-        location.startsWith('/add-shopping-item');
+        location.startsWith('/add-shopping-item') ||
+        location.startsWith('/add-looks-item');
     final int currentIndex = _getCurrentIndex(location);
     final String appBarTitle = _getTitle(location);
 

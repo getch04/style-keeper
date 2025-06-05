@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/data/services/shopping_list_db_service.dart';
-import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model.dart';
+import 'package:style_keeper/features/wardrobe/data/models/shopping_list_model.dart';
 
 class ShoppingListProvider extends ChangeNotifier {
   final ShoppingListDbService _dbService;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:style_keeper/app_main_page.dart';
 import 'package:style_keeper/features/home/presentation/home_page.dart';
+import 'package:style_keeper/features/styles/presentation/screens/add_looks_item_page.dart';
 import 'package:style_keeper/features/styles/presentation/screens/create_style_page.dart';
 import 'package:style_keeper/features/styles/presentation/screens/styles_page.dart';
 import 'package:style_keeper/features/trip_planning/presentation/screens/add_trip_page.dart';
@@ -169,6 +170,17 @@ class AppRouter {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: AddShoppingItemPage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/${AddLooksItemPage.name}',
+        name: AddLooksItemPage.name,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: AddLooksItemPage()),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

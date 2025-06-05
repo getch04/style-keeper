@@ -1,13 +1,31 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/styles/presentation/providers/looks_list_provider.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
-class StylesPage extends StatelessWidget {
+class StylesPage extends StatefulWidget {
   static const String name = "styles";
   const StylesPage({super.key});
+
+  @override
+  State<StylesPage> createState() => _StylesPageState();
+}
+
+class _StylesPageState extends State<StylesPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load looks lists when the page is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LooksListProvider>().loadLooksLists();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,25 +79,42 @@ class StylesPage extends StatelessWidget {
 
             // Scrollable Content
             Expanded(
-              child: ListView(
-                children: [
-                  _StyleCollection(
-                    title: 'Summer vibes 2002',
-                    itemCount: 12,
-                    images: List.generate(3, (index) => null),
-                  ),
-                  _StyleCollection(
-                    title: 'Look #1',
-                    itemCount: 3,
-                    images: List.generate(3, (index) => null),
-                  ),
-                  _StyleCollection(
-                    title: 'New season 2021',
-                    itemCount: 2,
-                    images: List.generate(3, (index) => null),
-                  ),
-                  const SizedBox(height: 80), // Space for the floating button
-                ],
+              child: Consumer<LooksListProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (provider.looksLists.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No looks created yet',
+                        style: TextStyle(
+                          color: AppColors.darkGray,
+                          fontSize: 16,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView(
+                    children: [
+                      ...provider.looksLists
+                          .map((looksList) => _StyleCollection(
+                                title: looksList.name,
+                                itemCount: looksList.items.length,
+                                images: looksList.items
+                                    .take(3)
+                                    .map((item) => item.imagePath)
+                                    .toList(),
+                              )),
+                      const SizedBox(
+                          height: 80), // Space for the floating button
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -93,7 +128,7 @@ class StylesPage extends StatelessWidget {
 class _StyleCollection extends StatelessWidget {
   final String title;
   final int itemCount;
-  final List<String?> images;
+  final List<String> images;
 
   const _StyleCollection({
     required this.title,
@@ -150,7 +185,15 @@ class _StyleCollection extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 8),
                   height: 91,
                   width: 113,
-                  child: const ImagePlaceholer(),
+                  child: image != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            File(image),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const ImagePlaceholer(),
                 );
               }).toList(),
             ),

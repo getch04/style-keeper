@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
-import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model.dart';
+import 'package:style_keeper/features/wardrobe/data/models/shopping_list_model.dart';
 import 'package:style_keeper/features/wardrobe/presentation/providers/shopping_list_provider.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
 

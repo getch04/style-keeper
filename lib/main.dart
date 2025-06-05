@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_colors.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
+import 'features/styles/data/services/looks_list_db_service.dart';
+import 'features/styles/presentation/providers/looks_list_provider.dart';
 import 'features/wardrobe/data/models/clothing_item.dart';
 import 'features/wardrobe/data/services/shopping_list_db_service.dart';
 import 'features/wardrobe/presentation/providers/selected_sample_provider.dart';
@@ -23,6 +25,10 @@ void main() async {
   final shoppingListDbService = ShoppingListDbService();
   await shoppingListDbService.init();
 
+  // Initialize LooksListDbService
+  final looksListDbService = LooksListDbService();
+  await looksListDbService.init();
+
   // Initialize dependency injection
   await configureDependencies();
 
@@ -33,6 +39,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SelectedSampleProvider()),
         ChangeNotifierProvider(
           create: (_) => ShoppingListProvider(shoppingListDbService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LooksListProvider(looksListDbService),
         ),
       ],
       child: const MyApp(),

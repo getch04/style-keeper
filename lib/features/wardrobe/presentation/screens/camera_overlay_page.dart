@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/core/plugin/flutter_camera_overlay.dart';
+import 'package:style_keeper/features/styles/presentation/screens/add_looks_item_page.dart';
 import 'package:style_keeper/features/styles/presentation/screens/create_style_page.dart';
 import 'package:style_keeper/features/trip_planning/presentation/screens/add_trip_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/providers/selected_sample_provider.dart';
@@ -103,6 +104,9 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
         break;
       case CreateStylePage.name:
         context.push('/${CreateStylePage.name}', extra: extra);
+        break;
+      case AddLooksItemPage.name:
+        context.push('/${AddLooksItemPage.name}', extra: extra);
         break;
       case AddTripPage.name:
         context.push('/${AddTripPage.name}', extra: extra);
