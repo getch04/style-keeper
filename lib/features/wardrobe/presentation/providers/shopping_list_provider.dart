@@ -9,7 +9,8 @@ class ShoppingListProvider extends ChangeNotifier {
   List<ClothingItem> _temporaryItems = [];
   bool _isLoading = false;
   String? _error;
-
+  bool editShoppingMode = false;
+  String? shoppingListIdToBeEdited;
   // Form state
   String? _newListName;
   String? _newListImagePath;
@@ -35,6 +36,13 @@ class ShoppingListProvider extends ChangeNotifier {
   String? get newItemPlace => _newItemPlace;
   String? get newItemPrice => _newItemPrice;
   String? get newItemImagePath => _newItemImagePath;
+
+  // update edit shopping mode
+  void updateEditShoppingMode(bool value, String listId) {
+    editShoppingMode = value;
+    shoppingListIdToBeEdited = listId;
+    notifyListeners();
+  }
 
   // Form state setters
   void setNewListName(String? value) {
@@ -109,6 +117,8 @@ class ShoppingListProvider extends ChangeNotifier {
 
   void clearTemporaryItems() {
     _temporaryItems = [];
+    editShoppingMode = false;
+    shoppingListIdToBeEdited = null;
     notifyListeners();
   }
 

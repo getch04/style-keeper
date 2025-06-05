@@ -25,7 +25,7 @@ class AppMainPage extends StatelessWidget {
     } else if (location.startsWith('/clothing-detail')) {
       return 'Clothing';
     } else if (location.startsWith('/shopping-list-detail')) {
-      return 'Shopping';
+      return 'Shopping ';
     } else if (location.startsWith('/add-trip')) {
       return 'New trip list';
     } else {

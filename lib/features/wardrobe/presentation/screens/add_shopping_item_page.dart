@@ -52,14 +52,16 @@ class _AddShoppingItemPageState extends State<AddShoppingItemPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInitialized) {
-      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-      if (extra != null) {
-        final imagePath = extra['imagePath'] as String?;
-        if (imagePath != null) {
-          context.read<ShoppingListProvider>().setNewItemImagePath(imagePath);
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+        if (extra != null) {
+          final imagePath = extra['imagePath'] as String?;
+          if (imagePath != null) {
+            context.read<ShoppingListProvider>().setNewItemImagePath(imagePath);
+          }
         }
-      }
-      _isInitialized = true;
+        _isInitialized = true;
+      });
     }
   }
 
@@ -94,7 +96,11 @@ class _AddShoppingItemPageState extends State<AddShoppingItemPage> {
       provider.clearNewItemForm();
 
       if (mounted) {
-        context.go('/${NewShoppingListPage.name}');
+        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+        context.go('/${NewShoppingListPage.name}', extra: {
+          'isEditing': extra?['isEditing'] ?? false,
+          'listId': extra?['listId'],
+        });
       }
     } finally {
       setState(() => _isSaving = false);

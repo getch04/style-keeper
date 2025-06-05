@@ -40,14 +40,16 @@ class _NewShoppingListPageState extends State<NewShoppingListPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInitialized) {
-      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-      if (extra != null) {
-        final imagePath = extra['imagePath'] as String?;
-        if (imagePath != null) {
-          context.read<ShoppingListProvider>().setNewListImagePath(imagePath);
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+        if (extra != null) {
+          final imagePath = extra['imagePath'] as String?;
+          if (imagePath != null) {
+            context.read<ShoppingListProvider>().setNewListImagePath(imagePath);
+          }
         }
-      }
-      _isInitialized = true;
+        _isInitialized = true;
+      });
     }
   }
 
@@ -62,12 +64,33 @@ class _NewShoppingListPageState extends State<NewShoppingListPage> {
     setState(() => _isSaving = true);
 
     try {
+      //provider
       final provider = context.read<ShoppingListProvider>();
-      await provider.createShoppingList(
-        name: _nameController.text,
-        budget: provider.temporaryItemsTotalPrice,
-        imagePath: provider.newListImagePath,
-      );
+      final isEditing = provider.editShoppingMode;
+      final listId = provider.shoppingListIdToBeEdited;
+
+      if (isEditing && listId != null) {
+        // Update existing list
+        final existingList =
+            provider.shoppingLists.firstWhere((list) => list.id == listId);
+        final updatedList = existingList.copyWith(
+          name: _nameController.text,
+          items: provider.temporaryItems,
+          totalPrice: provider.temporaryItemsTotalPrice,
+          budget: provider.temporaryItemsTotalPrice,
+          imagePath: provider.newListImagePath ?? existingList.imagePath,
+          updatedAt: DateTime.now(),
+        );
+        await provider.updateShoppingList(updatedList);
+      } else {
+        // Create new list
+        await provider.createShoppingList(
+          name: _nameController.text,
+          budget: provider.temporaryItemsTotalPrice,
+          imagePath: provider.newListImagePath,
+        );
+      }
+
       provider.clearTemporaryItems();
       provider.clearNewListForm();
       if (mounted) {
@@ -231,7 +254,7 @@ class _NewShoppingListPageState extends State<NewShoppingListPage> {
                       _isSaving ? 0.25 : 1,
                     ),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -341,6 +364,9 @@ class ShoppingListItem extends StatelessWidget {
               ],
             ),
           ),
+          SvgPicture.asset(
+              //eye
+              AppImages.eye)
         ],
       ),
     );

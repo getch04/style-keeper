@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model.dart';
+import 'package:style_keeper/features/wardrobe/presentation/providers/shopping_list_provider.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
 
 class ShoppingListDetailPage extends StatefulWidget {
   const ShoppingListDetailPage({super.key});
@@ -104,7 +107,18 @@ class _ShoppingListDetailPageState extends State<ShoppingListDetailPage> {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(8),
-                              onTap: () {},
+                              onTap: () {
+                                final provider =
+                                    context.read<ShoppingListProvider>();
+                                provider.setNewListName(list.name);
+                                provider.setNewListImagePath(list.imagePath);
+                                provider.clearTemporaryItems();
+                                for (var item in list.items) {
+                                  provider.addTemporaryItem(item);
+                                }
+                                provider.updateEditShoppingMode(true, list.id);
+                                context.push('/${NewShoppingListPage.name}');
+                              },
                               child: Container(
                                 width: 38,
                                 height: 38,

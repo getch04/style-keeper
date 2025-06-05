@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model.dart';
 import 'package:style_keeper/features/wardrobe/presentation/providers/shopping_list_provider.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/shopping_list_detail_page.dart';
@@ -50,19 +52,24 @@ class _ShoppingTabState extends State<ShoppingTab> {
           );
         }
 
-        return Column(
-          children: shoppingLists
-              .map((list) => _ShoppingListCard(
-                    list: list,
-                  ))
-              .toList(),
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: shoppingLists
+                  .map((list) => _ShoppingListCard(
+                        list: list,
+                      ))
+                  .toList(),
+            ),
+          ),
         );
       },
     );
   }
 }
 
-class _ShoppingListCard extends StatelessWidget {
+class _ShoppingListCard extends StatefulWidget {
   final ShoppingListModel list;
 
   const _ShoppingListCard({
@@ -70,11 +77,23 @@ class _ShoppingListCard extends StatelessWidget {
   });
 
   @override
+  State<_ShoppingListCard> createState() => _ShoppingListCardState();
+}
+
+class _ShoppingListCardState extends State<_ShoppingListCard> {
+  bool _isLongPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         context.push('/${ShoppingListDetailPage.name}', extra: {
-          'list': list,
+          'list': widget.list,
+        });
+      },
+      onLongPress: () {
+        setState(() {
+          _isLongPressed = true;
         });
       },
       child: Container(
@@ -92,58 +111,92 @@ class _ShoppingListCard extends StatelessWidget {
           ],
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (list.imagePath != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  File(list.imagePath!),
-                  width: 100,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
-              )
-            else
-              const ImagePlaceholer(
-                width: 100,
-                height: 80,
-              ),
-            const SizedBox(width: 16),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    list.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      color: AppColors.darkGray,
+                  if (widget.list.imagePath != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        File(widget.list.imagePath!),
+                        width: 100,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  else
+                    const ImagePlaceholer(
+                      width: 100,
+                      height: 80,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Budget: ${list.budget.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Color(0xFFBDBDBD),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Spent: ${list.items.fold(0.0, (sum, item) => sum + (item.price))}',
-                    style: const TextStyle(
-                      color: AppColors.yellow,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.list.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            color: AppColors.darkGray,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Total: ${Provider.of<ShoppingListProvider>(context).shoppingLists.fold(0.0, (sum, list) => sum + list.calculatedTotalPrice).toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Color(0xFFBDBDBD),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Spent: ${widget.list.items.fold(0.0, (sum, item) => sum + (item.price))}',
+                          style: const TextStyle(
+                            color: AppColors.yellow,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
+            if (_isLongPressed) ...[
+              const SizedBox(width: 16),
+              GestureDetector(
+                onTap: () {
+                  context
+                      .read<ShoppingListProvider>()
+                      .deleteShoppingList(widget.list.id);
+                  setState(() {
+                    _isLongPressed = false;
+                  });
+                },
+                child: Container(
+                  width: 36,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SvgPicture.asset(
+                    AppImages.delete,
+                    width: 18,
+                    height: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

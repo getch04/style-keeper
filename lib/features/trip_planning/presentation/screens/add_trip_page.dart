@@ -134,7 +134,7 @@ class _AddTripPageState extends State<AddTripPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.yellow,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
