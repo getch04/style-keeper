@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
               return _buildWeatherCard(
                 date: _todayString(),
                 temperature: '---',
-                icon: AppImages.cloud,
+                icon: "",
                 description: 'Loading...',
               );
             } else if (snapshot.hasData && snapshot.data != null) {
@@ -43,14 +43,14 @@ class _HomePageState extends State<HomePage> {
               return _buildWeatherCard(
                 date: _todayString(),
                 temperature: '${weather.temperature.round()}°C',
-                icon: _mapWeatherIcon(weather.icon),
+                icon: weather.icon,
                 description: weather.description,
               );
             } else {
               return _buildWeatherCard(
                 date: _todayString(),
                 temperature: '---',
-                icon: AppImages.rain,
+                icon: "",
                 description: 'Unavailable',
               );
             }
@@ -91,10 +91,17 @@ class _HomePageState extends State<HomePage> {
     return names[(weekday - 1) % 7];
   }
 
-  String _mapWeatherIcon(String iconCode) {
-    // Map OpenWeatherMap icon codes to your SVGs if you want
-    // For now, just return AppImages.cloud for all
-    return AppImages.cloud;
+  String _mapWeatherIcon(int temp) {
+    //let's map the icon based on the temprature
+    if (temp > 30) {
+      return AppImages.sun;
+    } else if (temp > 20) {
+      return AppImages.cloud;
+    } else if (temp > 10) {
+      return AppImages.rain;
+    } else {
+      return AppImages.snow;
+    }
   }
 
   Widget _buildWeatherCard({
@@ -146,8 +153,19 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
+          // if (icon.isNotEmpty)
+          //   CachedNetworkImage(
+          //     imageUrl: icon,
+          //     placeholder: (context, url) => const CircularProgressIndicator(),
+          //     errorWidget: (context, url, error) => SvgPicture.asset(
+          //       icon,
+          //       width: 60,
+          //       height: 60,
+          //     ),
+          //   )
+          // else
           SvgPicture.asset(
-            icon,
+            _mapWeatherIcon(int.tryParse(temperature) ?? 0),
             width: 60,
             height: 60,
           ),

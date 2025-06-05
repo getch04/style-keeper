@@ -12,6 +12,10 @@ class TripProvider extends ChangeNotifier {
   String? _newTripImagePath;
   List<ClothingItem> _temporaryItems = [];
 
+  // Edit mode fields
+  bool editTripMode = false;
+  String? tripIdToBeEdited;
+
   TripProvider(this._dbService);
 
   // Getters
@@ -22,8 +26,22 @@ class TripProvider extends ChangeNotifier {
   String? get newTripImagePath => _newTripImagePath;
   List<ClothingItem> get temporaryItems => _temporaryItems;
 
+  // Edit mode management
+  void updateEditTripMode(bool value, String? tripId) {
+    editTripMode = value;
+    tripIdToBeEdited = tripId;
+    notifyListeners();
+  }
+
+  void clearEditTripMode() {
+    editTripMode = false;
+    tripIdToBeEdited = null;
+    notifyListeners();
+  }
+
   // Load all trips
   Future<void> loadTrips() async {
+    print("===========loadTrips===========");
     _isLoading = true;
     notifyListeners();
     try {

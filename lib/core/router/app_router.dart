@@ -6,6 +6,7 @@ import 'package:style_keeper/features/styles/presentation/screens/add_looks_item
 import 'package:style_keeper/features/styles/presentation/screens/create_style_page.dart';
 import 'package:style_keeper/features/styles/presentation/screens/styles_page.dart';
 import 'package:style_keeper/features/trip_planning/presentation/screens/add_trip_page.dart';
+import 'package:style_keeper/features/trip_planning/presentation/screens/trip_detail_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_shopping_item_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
@@ -181,6 +182,17 @@ class AppRouter {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: AddLooksItemPage()),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/${TripDetailPage.name}',
+        name: TripDetailPage.name,
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const AppMainPage(child: TripDetailPage()),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

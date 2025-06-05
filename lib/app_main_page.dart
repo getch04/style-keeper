@@ -28,6 +28,8 @@ class AppMainPage extends StatelessWidget {
       return 'Shopping ';
     } else if (location.startsWith('/add-trip')) {
       return 'New trip list';
+    } else if (location.startsWith('/trip-detail')) {
+      return 'Trip list';
     } else {
       return 'Hello!';
     }
@@ -41,7 +43,8 @@ class AppMainPage extends StatelessWidget {
         location.startsWith('/shopping-list-detail') ||
         location.startsWith('/add-trip') ||
         location.startsWith('/add-shopping-item') ||
-        location.startsWith('/add-looks-item')) {
+        location.startsWith('/add-looks-item') ||
+        location.startsWith('/trip-detail')) {
       return 1;
     } else if (location.startsWith('/looks') ||
         location.startsWith('/styles') ||
@@ -62,7 +65,8 @@ class AppMainPage extends StatelessWidget {
         location.startsWith('/shopping-list-detail') ||
         location.startsWith('/add-trip') ||
         location.startsWith('/add-shopping-item') ||
-        location.startsWith('/add-looks-item');
+        location.startsWith('/add-looks-item') ||
+        location.startsWith('/trip-detail');
     final int currentIndex = _getCurrentIndex(location);
     final String appBarTitle = _getTitle(location);
 

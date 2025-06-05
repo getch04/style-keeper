@@ -8,40 +8,77 @@ class WeatherInfo {
   final double temperature;
   final String icon;
 
-  WeatherInfo(
-      {required this.description,
-      required this.temperature,
-      required this.icon});
+  WeatherInfo({
+    required this.description,
+    required this.temperature,
+    required this.icon,
+  });
 }
 
 class WeatherService {
-  static const String _apiKey = '458890748a67e946adcb7137f914cdd1';
   Future<WeatherInfo?> fetchWeather() async {
-    return null;
     try {
-      //request permission
-      await Geolocator.requestPermission();
-      // Get current position
-
-      final position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low);
-
-      // Fetch weather data
-      final url =
-          'http://api.weatherstack.com/current?access_key=$_apiKey&query=${position.latitude},${position.longitude}';
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return WeatherInfo(
-          description: data['current']['weather_descriptions'][0],
-          temperature: (data['current']['temperature'] as num).toDouble(),
-          icon: data['current']['weather_icons'][0],
-        );
+      // Check if location services are enabled
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        print("Location services are disabled.");
+        return null;
       }
+
+      // Check permission status
+      LocationPermission permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print("Location permission denied.");
+          return null;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        print("Location permission permanently denied.");
+        return null;
+      }
+
+      // Get current location
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+      );
+
+      final lat = position.latitude;
+      final lon = position.longitude;
+
+      // Get NWS point metadata
+      const pointUrl = 'https://api.weather.gov/points/39.7456,-97.0892';
+      final pointResponse = await http.get(Uri.parse(pointUrl));
+
+      if (pointResponse.statusCode != 200) {
+        print("Failed to get point metadata.");
+        return null;
+      }
+
+      final pointData = json.decode(pointResponse.body);
+      final forecastUrl = pointData['properties']['forecast'];
+
+      // Get forecast data
+      final forecastResponse = await http.get(Uri.parse(forecastUrl));
+      if (forecastResponse.statusCode != 200) {
+        print("Failed to get forecast data.");
+        return null;
+      }
+
+      final forecastData = json.decode(forecastResponse.body);
+      final currentPeriod = forecastData['properties']['periods'][0];
+
+      return WeatherInfo(
+        description: currentPeriod['shortForecast'],
+        temperature: currentPeriod['temperature'].toDouble(),
+        icon: currentPeriod['icon'],
+      );
     } catch (e) {
-      // Handle error or permission denied
+      print("Error: $e");
       return null;
     }
-    return null;
   }
 }

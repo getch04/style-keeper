@@ -35,6 +35,8 @@ class TripDbService {
 
   // Get all trips
   Future<List<TripModel>> getAllTrips() async {
+    print("===========getAllTrips===========");
+    print(_box.values.toList());
     return _box.values.toList();
   }
 

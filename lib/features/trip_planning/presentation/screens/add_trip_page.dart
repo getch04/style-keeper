@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/features/trip_planning/data/models/trip_model.dart';
 import 'package:style_keeper/features/trip_planning/data/trip_provider.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/choose_items_bottom_sheet.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
 
 class AddTripPage extends StatefulWidget {
@@ -37,7 +39,7 @@ class _AddTripPageState extends State<AddTripPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isInitialized) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         final provider = context.read<TripProvider>();
         // Always check for imagePath in GoRouter extra
         final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
@@ -45,6 +47,27 @@ class _AddTripPageState extends State<AddTripPage> {
           final imagePath = extra['imagePath'] as String?;
           if (imagePath != null) {
             provider.setNewTripImagePath(imagePath);
+          }
+        }
+        // Prepopulate if in edit mode
+        if (provider.editTripMode && provider.tripIdToBeEdited != null) {
+          TripModel? trip;
+          try {
+            trip = provider.trips
+                .firstWhere((t) => t.id == provider.tripIdToBeEdited);
+          } catch (_) {
+            trip = null;
+          }
+          if (trip != null) {
+            _nameController.text = trip.name;
+            _durationController.text = trip.duration;
+            provider.setNewTripName(trip.name);
+            provider.setNewTripDuration(trip.duration);
+            provider.setNewTripImagePath(trip.imagePath);
+            provider.clearTemporaryItems();
+            for (final item in trip.items) {
+              provider.addTemporaryItem(item);
+            }
           }
         }
         _isInitialized = true;
@@ -67,7 +90,30 @@ class _AddTripPageState extends State<AddTripPage> {
       final provider = context.read<TripProvider>();
       provider.setNewTripName(_nameController.text);
       provider.setNewTripDuration(_durationController.text);
-      await provider.createTrip();
+      if (provider.editTripMode && provider.tripIdToBeEdited != null) {
+        // Update existing trip
+        TripModel? trip;
+        try {
+          trip = provider.trips
+              .firstWhere((t) => t.id == provider.tripIdToBeEdited);
+        } catch (_) {
+          trip = null;
+        }
+        if (trip != null) {
+          final updatedTrip = trip.copyWith(
+            name: _nameController.text,
+            duration: _durationController.text,
+            imagePath: provider.newTripImagePath ?? trip.imagePath,
+            items: provider.temporaryItems,
+            updatedAt: DateTime.now(),
+          );
+          await provider.updateTrip(updatedTrip);
+        }
+        provider.clearEditTripMode();
+      } else {
+        // Create new trip
+        await provider.createTrip();
+      }
       provider.clearForm();
       if (mounted) {
         context.go('/wardrobe');
@@ -161,7 +207,18 @@ class _AddTripPageState extends State<AddTripPage> {
                               ),
                             ),
                             ElevatedButton.icon(
-                              onPressed: () {},
+                              onPressed: () {
+                                //show buttom sheet
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) => SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.9,
+                                    child: const ChooseItemsBottomSheet(),
+                                  ),
+                                );
+                              },
                               icon: const Icon(Icons.add, color: Colors.white),
                               label: const Text(
                                 'Add items',
