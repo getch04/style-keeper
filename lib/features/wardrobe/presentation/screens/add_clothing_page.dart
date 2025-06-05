@@ -111,7 +111,9 @@ class _AddClothingPageState extends State<AddClothingPage> {
       barrierColor: Colors.black.withOpacity(0.85),
       builder: (context) => NoticeDialog(
         onContinue: () {
-          context.push('/${CameraOverlayPage.name}');
+          context.push('/${CameraOverlayPage.name}', extra: {
+            'returnTo': AddClothingPage.name,
+          });
         },
         onCancel: () {
           GoRouter.of(context).pop();
@@ -126,7 +128,9 @@ class _AddClothingPageState extends State<AddClothingPage> {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          if (imagePath == null && !isEditMode) const AddPhotoSection(),
+          if (imagePath == null && !isEditMode) const AddPhotoSection(
+            returnTo: AddClothingPage.name,
+          ),
           if (imagePath != null)
             Container(
               width: 400,

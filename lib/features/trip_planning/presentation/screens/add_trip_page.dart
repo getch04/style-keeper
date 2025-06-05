@@ -68,7 +68,8 @@ class _AddTripPageState extends State<AddTripPage> {
                 children: [
                   const SizedBox(height: 20),
                   const AddPhotoSection(
-                
+                    returnTo: AddTripPage.name,
+
                   ),
                   const SizedBox(height: 24),
                   Padding(

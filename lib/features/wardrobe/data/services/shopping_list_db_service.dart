@@ -37,6 +37,8 @@ class ShoppingListDbService {
 
   // Get all shopping lists
   Future<List<ShoppingListModel>> getAllShoppingLists() async {
+    print("========getAllShoppingLists=========");
+    print(_box.values);
     return _box.values
         .map((map) => ShoppingListModel.fromMap(Map<String, dynamic>.from(map)))
         .toList();

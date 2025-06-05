@@ -8,12 +8,19 @@ import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/core/plugin/flutter_camera_overlay.dart';
+import 'package:style_keeper/features/styles/presentation/screens/create_style_page.dart';
+import 'package:style_keeper/features/trip_planning/presentation/screens/add_trip_page.dart';
 import 'package:style_keeper/features/wardrobe/presentation/providers/selected_sample_provider.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/add_clothing_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/screens/add_shopping_item_page.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/new_shopping_list_page.dart';
 
 class CameraOverlayPage extends StatefulWidget {
   static const String name = "camera-overlay";
-  const CameraOverlayPage({super.key});
+
+  const CameraOverlayPage({
+    super.key,
+  });
 
   @override
   State<CameraOverlayPage> createState() => _CameraOverlayPageState();
@@ -22,6 +29,8 @@ class CameraOverlayPage extends StatefulWidget {
 class _CameraOverlayPageState extends State<CameraOverlayPage> {
   CameraController? _controller;
   bool _isCameraInitialized = false;
+  String? returnTo;
+  bool _isInitialized = false;
 
   final List<String> icons = [
     AppImages.blackNoCloth,
@@ -37,6 +46,16 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
   void initState() {
     super.initState();
     _initCamera();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>;
+      returnTo = extra['returnTo'] as String?;
+      _isInitialized = true;
+    }
   }
 
   Future<void> _initCamera() async {
@@ -60,12 +79,48 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
     super.dispose();
   }
 
+  void _handleImageCapture(XFile file) {
+    if (!mounted) return;
+    final selectedProvider =
+        Provider.of<SelectedSampleProvider>(context, listen: false);
+    final selectedIndex = selectedProvider.selectedIndex;
+    final hasOverlay = selectedProvider.hasSelectedSample;
+
+    final extra = {
+      'imagePath': file.path,
+      'overlayIndex': selectedIndex,
+      'overlayAsset': hasOverlay ? icons[selectedIndex] : null,
+      'squareSize': MediaQuery.of(context).size.width - 32,
+    };
+
+    // Route based on returnTo parameter
+    switch (returnTo) {
+      case AddShoppingItemPage.name:
+        context.push('/${AddShoppingItemPage.name}', extra: extra);
+        break;
+      case AddClothingPage.name:
+        context.push('/${AddClothingPage.name}', extra: extra);
+        break;
+      case CreateStylePage.name:
+        context.push('/${CreateStylePage.name}', extra: extra);
+        break;
+      case AddTripPage.name:
+        context.push('/${AddTripPage.name}', extra: extra);
+        break;
+      case NewShoppingListPage.name:
+        context.push('/${NewShoppingListPage.name}', extra: extra);
+        break;
+      default:
+        // Default to AddClothingPage if no returnTo specified
+        context.push('/${AddClothingPage.name}', extra: extra);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
-    // Make the box as large as possible, with padding
-    final double squareSize = screenWidth * 0.7; // 16px padding on each side
+    final double squareSize = screenWidth - 32;
     final selectedProvider = Provider.of<SelectedSampleProvider>(context);
     final selectedIndex = selectedProvider.selectedIndex;
     final hasOverlay = selectedProvider.hasSelectedSample;
@@ -74,23 +129,10 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          //  final CameraDescription camera;
           _isCameraInitialized && _controller != null
               ? CameraOverlay(
                   _controller!.description,
-                  (XFile file) async {
-                    if (!mounted) return;
-                    context.push(
-                      '/${AddClothingPage.name}',
-                      extra: {
-                        'imagePath': file.path,
-                        'overlayIndex': selectedIndex,
-                        'overlayAsset':
-                            hasOverlay ? icons[selectedIndex] : null,
-                        'squareSize': squareSize,
-                      },
-                    );
-                  },
+                  _handleImageCapture,
                   imagePath: hasOverlay ? icons[selectedIndex] : icons[0],
                 )
               : const Center(
@@ -194,28 +236,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                       if (_controller != null &&
                           _controller!.value.isInitialized) {
                         final XFile file = await _controller!.takePicture();
-                        if (!mounted) return;
-                        context.push(
-                          '/${AddClothingPage.name}',
-                          extra: {
-                            'imagePath': file.path,
-                            'overlayIndex': selectedIndex,
-                            'overlayAsset': icons[selectedIndex],
-                            'squareSize': squareSize,
-                          },
-                        );
-                        // Router.neglect(
-                        //   context,
-                        //   () => context.push(
-                        //     '/${CameraPreviewPage.name}',
-                        //     extra: {
-                        //       'imagePath': file.path,
-                        //       'overlayIndex': selectedIndex,
-                        //       'overlayAsset': icons[selectedIndex],
-                        //       'squareSize': squareSize,
-                        //     },
-                        //   ),
-                        // );
+                        _handleImageCapture(file);
                       }
                     },
                     child: Container(

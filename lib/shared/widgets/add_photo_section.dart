@@ -5,19 +5,20 @@ import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
-import 'package:style_keeper/features/wardrobe/presentation/screens/choose_sample_page.dart';
 import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 
 class AddPhotoSection extends StatelessWidget {
   final String label;
   // final VoidCallback? onTap;
   final String? imagePath;
+  final String returnTo;
 
   const AddPhotoSection({
     super.key,
     this.label = 'Add photo',
     // this.onTap,
     this.imagePath,
+    required this.returnTo,
   });
 
   void _showNoticeDialog(BuildContext context) {
@@ -27,7 +28,9 @@ class AddPhotoSection extends StatelessWidget {
       barrierColor: Colors.black.withOpacity(0.85),
       builder: (context) => NoticeDialog(
         onContinue: () {
-          context.push('/${CameraOverlayPage.name}');
+          context.push('/${CameraOverlayPage.name}', extra: {
+            'returnTo': returnTo,
+          });
         },
         onCancel: () {
           GoRouter.of(context).pop();

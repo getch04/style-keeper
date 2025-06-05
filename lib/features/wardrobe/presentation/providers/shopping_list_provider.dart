@@ -6,15 +6,116 @@ import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model
 class ShoppingListProvider extends ChangeNotifier {
   final ShoppingListDbService _dbService;
   List<ShoppingListModel> _shoppingLists = [];
+  List<ClothingItem> _temporaryItems = [];
   bool _isLoading = false;
   String? _error;
+
+  // Form state
+  String? _newListName;
+  String? _newListImagePath;
+  String? _newItemName;
+  String? _newItemBrand;
+  String? _newItemPlace;
+  String? _newItemPrice;
+  String? _newItemImagePath;
 
   ShoppingListProvider(this._dbService);
 
   // Getters
   List<ShoppingListModel> get shoppingLists => _shoppingLists;
+  List<ClothingItem> get temporaryItems => _temporaryItems;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  // Form state getters
+  String? get newListName => _newListName;
+  String? get newListImagePath => _newListImagePath;
+  String? get newItemName => _newItemName;
+  String? get newItemBrand => _newItemBrand;
+  String? get newItemPlace => _newItemPlace;
+  String? get newItemPrice => _newItemPrice;
+  String? get newItemImagePath => _newItemImagePath;
+
+  // Form state setters
+  void setNewListName(String? value) {
+    _newListName = value;
+    notifyListeners();
+  }
+
+  void setNewListImagePath(String? value) {
+    _newListImagePath = value;
+    notifyListeners();
+  }
+
+  void setNewItemName(String? value) {
+    _newItemName = value;
+    notifyListeners();
+  }
+
+  void setNewItemBrand(String? value) {
+    _newItemBrand = value;
+    notifyListeners();
+  }
+
+  void setNewItemPlace(String? value) {
+    _newItemPlace = value;
+    notifyListeners();
+  }
+
+  void setNewItemPrice(String? value) {
+    _newItemPrice = value;
+    notifyListeners();
+  }
+
+  void setNewItemImagePath(String? value) {
+    _newItemImagePath = value;
+    notifyListeners();
+  }
+
+  // Clear form state
+  void clearNewListForm() {
+    _newListName = null;
+    _newListImagePath = null;
+    notifyListeners();
+  }
+
+  void clearNewItemForm() {
+    _newItemName = null;
+    _newItemBrand = null;
+    _newItemPlace = null;
+    _newItemPrice = null;
+    _newItemImagePath = null;
+    notifyListeners();
+  }
+
+  // Temporary items management
+  void addTemporaryItem(ClothingItem item) {
+    _temporaryItems = [..._temporaryItems, item];
+    notifyListeners();
+  }
+
+  void removeTemporaryItem(String itemId) {
+    _temporaryItems =
+        _temporaryItems.where((item) => item.id != itemId).toList();
+    notifyListeners();
+  }
+
+  void updateTemporaryItem(ClothingItem updatedItem) {
+    _temporaryItems = _temporaryItems
+        .map((item) => item.id == updatedItem.id ? updatedItem : item)
+        .toList();
+    notifyListeners();
+  }
+
+  void clearTemporaryItems() {
+    _temporaryItems = [];
+    notifyListeners();
+  }
+
+  // Calculate total price of temporary items
+  double get temporaryItemsTotalPrice {
+    return _temporaryItems.fold(0, (sum, item) => sum + (item.price ?? 0));
+  }
 
   // Load all shopping lists
   Future<void> loadShoppingLists() async {
@@ -48,6 +149,7 @@ class ShoppingListProvider extends ChangeNotifier {
         name: name,
         budget: budget,
         imagePath: imagePath,
+        items: _temporaryItems,
       );
       _shoppingLists.add(newList);
       _error = null;

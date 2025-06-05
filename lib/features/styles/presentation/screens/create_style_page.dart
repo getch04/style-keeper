@@ -18,7 +18,9 @@ class CreateStylePage extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           children: [
             // Add photo section
-            const AddPhotoSection(),
+            const AddPhotoSection(
+              returnTo: CreateStylePage.name,
+            ),
             const SizedBox(height: 22),
             // Name input and Add items button
             Row(
