@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/trip_planning/data/models/trip_model.dart';
 import 'package:style_keeper/features/trip_planning/data/trip_provider.dart';
 import 'package:style_keeper/features/trip_planning/presentation/screens/trip_detail_page.dart';
@@ -15,26 +17,105 @@ class TripListTab extends StatefulWidget {
 }
 
 class _TripListTabState extends State<TripListTab> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<TripProvider>(context, listen: false).loadTrips();
     });
+    _searchController.addListener(() {
+      if (mounted) {
+        setState(() {
+          _searchQuery = _searchController.text;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<TripModel> _filterTrips(List<TripModel> trips) {
+    if (_searchQuery.isEmpty) return trips;
+    return trips
+        .where((t) => t.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<TripProvider>(
       builder: (context, provider, child) {
+        final filteredTrips = _filterTrips(provider.trips);
         if (provider.trips.isEmpty) {
           return const SizedBox.shrink();
         }
-        return Column(
-          children: [
-            ...provider.trips.map((trip) => _TripCard(trip: trip)),
-            const SizedBox(height: 24),
-          ],
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                // Search Bar
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Search',
+                      hintStyle: const TextStyle(
+                        color: AppColors.darkGray,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: SvgPicture.asset(
+                          AppImages.search,
+                          width: 12,
+                          height: 12,
+                          color: AppColors.darkGray,
+                        ),
+                      ),
+                      prefixStyle: const TextStyle(
+                        color: AppColors.darkGray,
+                        fontSize: 16,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                ...filteredTrips.map((trip) => _TripCard(trip: trip)),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
         );
       },
     );

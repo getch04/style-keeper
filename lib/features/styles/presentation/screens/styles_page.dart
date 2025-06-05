@@ -86,21 +86,21 @@ class _StylesPageState extends State<StylesPage> {
                 controller: _searchController,
                 style: const TextStyle(
                   color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Search',
                   hintStyle: const TextStyle(
                     color: AppColors.darkGray,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
                   ),
                   prefixIcon: Padding(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     child: SvgPicture.asset(
                       AppImages.search,
-                      width: 18,
+                      width: 16,
                       color: AppColors.darkGray,
                     ),
                   ),

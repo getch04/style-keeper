@@ -19,6 +19,9 @@ class ShoppingTab extends StatefulWidget {
 }
 
 class _ShoppingTabState extends State<ShoppingTab> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -26,6 +29,26 @@ class _ShoppingTabState extends State<ShoppingTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ShoppingListProvider>().loadShoppingLists();
     });
+    _searchController.addListener(() {
+      if (mounted) {
+        setState(() {
+          _searchQuery = _searchController.text;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<ShoppingListModel> _filterShoppingLists(List<ShoppingListModel> lists) {
+    if (_searchQuery.isEmpty) return lists;
+    return lists
+        .where((l) => l.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
   }
 
   @override
@@ -39,28 +62,80 @@ class _ShoppingTabState extends State<ShoppingTab> {
         }
 
         final shoppingLists = provider.shoppingLists;
-
-        if (shoppingLists.isEmpty) {
-          return const Center(
-            child: Text(
-              'No shopping lists yet',
-              style: TextStyle(
-                color: AppColors.darkGray,
-                fontSize: 16,
-              ),
-            ),
-          );
-        }
+        final filteredLists = _filterShoppingLists(shoppingLists);
 
         return SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Column(
-              children: shoppingLists
-                  .map((list) => _ShoppingListCard(
-                        list: list,
-                      ))
-                  .toList(),
+              children: [
+                const SizedBox(height: 16),
+                // Search Bar
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Search',
+                      hintStyle: const TextStyle(
+                        color: AppColors.darkGray,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: SvgPicture.asset(
+                          AppImages.search,
+                          width: 12,
+                          color: AppColors.darkGray,
+                        ),
+                      ),
+                      prefixStyle: const TextStyle(
+                        color: AppColors.darkGray,
+                        fontSize: 16,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                ),
+
+                if (shoppingLists.isEmpty)
+                  const Center(
+                    child: Text(
+                      'No shopping lists yet',
+                      style: TextStyle(
+                        color: AppColors.darkGray,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+
+                ...filteredLists
+                    .map((list) => _ShoppingListCard(
+                          list: list,
+                        ))
+                    .toList(),
+              ],
             ),
           ),
         );
