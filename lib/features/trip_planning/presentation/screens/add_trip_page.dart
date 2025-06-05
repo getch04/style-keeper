@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/features/trip_planning/data/trip_provider.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
 
 class AddTripPage extends StatefulWidget {
@@ -13,9 +16,41 @@ class AddTripPage extends StatefulWidget {
 }
 
 class _AddTripPageState extends State<AddTripPage> {
-  File? _imageFile;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
+  bool _isSaving = false;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<TripProvider>();
+    if (provider.newTripName != null) {
+      _nameController.text = provider.newTripName!;
+    }
+    if (provider.newTripDuration != null) {
+      _durationController.text = provider.newTripDuration!;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final provider = context.read<TripProvider>();
+        // Always check for imagePath in GoRouter extra
+        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+        if (extra != null) {
+          final imagePath = extra['imagePath'] as String?;
+          if (imagePath != null) {
+            provider.setNewTripImagePath(imagePath);
+          }
+        }
+        _isInitialized = true;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -24,137 +59,192 @@ class _AddTripPageState extends State<AddTripPage> {
     super.dispose();
   }
 
+  Future<void> _saveTrip() async {
+    if (_nameController.text.isEmpty || _durationController.text.isEmpty)
+      return;
+    setState(() => _isSaving = true);
+    try {
+      final provider = context.read<TripProvider>();
+      provider.setNewTripName(_nameController.text);
+      provider.setNewTripDuration(_durationController.text);
+      await provider.createTrip();
+      provider.clearForm();
+      if (mounted) {
+        context.go('/wardrobe');
+      }
+    } finally {
+      setState(() => _isSaving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            //   child: Row(
-            //     children: [
-            //       GestureDetector(
-            //         onTap: () => Navigator.of(context).pop(),
-            //         child: const Row(
-            //           children: [
-            //             Icon(Icons.arrow_back_ios,
-            //                 color: Colors.white, size: 22),
-            //             SizedBox(width: 2),
-            //             Text('Back',
-            //                 style:
-            //                     TextStyle(color: Colors.white, fontSize: 18)),
-            //           ],
-            //         ),
-            //       ),
-            //       const Spacer(),
-            //       const Text(
-            //         'New trip list',
-            //         style: TextStyle(
-            //           color: Colors.white,
-            //           fontWeight: FontWeight.bold,
-            //           fontSize: 22,
-            //         ),
-            //       ),
-            //       const Spacer(flex: 2),
-            //     ],
-            //   ),
-            // ),
-
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                children: [
-                  const SizedBox(height: 20),
-                  const AddPhotoSection(
-                    returnTo: AddTripPage.name,
-
-                  ),
-                  const SizedBox(height: 24),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        _buildInput(_nameController, 'List name'),
-                        const SizedBox(height: 16),
-                        _buildInput(_durationController, 'Trip duration'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'List items:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.black,
-                          ),
+    return Consumer<TripProvider>(
+      builder: (context, provider, child) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF5F5F5),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    children: [
+                      const SizedBox(height: 20),
+                      provider.newTripImagePath == null
+                          ? const AddPhotoSection(returnTo: AddTripPage.name)
+                          : Container(
+                              width: 400,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(24),
+                                      child: Image.file(
+                                        File(provider.newTripImagePath!),
+                                        height: 180,
+                                        width: 180,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 30),
+                                    GestureDetector(
+                                      onTap: () {
+                                        provider.setNewTripImagePath(null);
+                                      },
+                                      child: Container(
+                                        width: 45,
+                                        height: 45,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.delete,
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            _buildInput(_nameController, 'List name',
+                                onChanged: provider.setNewTripName),
+                            const SizedBox(height: 16),
+                            _buildInput(_durationController, 'Trip duration',
+                                onChanged: provider.setNewTripDuration),
+                          ],
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.add, color: Colors.white),
-                          label: const Text(
-                            'Add items',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                      ),
+                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'List items:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.black,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () {},
+                              icon: const Icon(Icons.add, color: Colors.white),
+                              label: const Text(
+                                'Add items',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.yellow,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (provider.temporaryItems.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: Text(
+                              'No items added yet',
+                              style: TextStyle(
+                                color: Colors.black38,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.yellow,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
                         ),
-                      ],
-                    ),
+                      // TODO: List clothing items here
+                      const SizedBox(height: 32),
+                    ],
                   ),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.yellow,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 0,
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  child: const Text('Save and continue'),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _saveTrip,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.yellow,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      child: _isSaving
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Save and continue'),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildInput(TextEditingController controller, String hint) {
+  Widget _buildInput(TextEditingController controller, String hint,
+      {Function(String)? onChanged}) {
     return TextField(
       controller: controller,
       cursorColor: Colors.black,
@@ -163,6 +253,7 @@ class _AddTripPageState extends State<AddTripPage> {
         fontSize: 18,
         color: Colors.black,
       ),
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/features/trip_planning/data/trip_provider.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class TripListTab extends StatelessWidget {
@@ -7,27 +9,22 @@ class TripListTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        ...[
-          _TripCard(
-            title: 'VERY LONG LIST TITLE...',
-            duration: '2 days',
-            clothes: 12,
-          ),
-          _TripCard(
-            title: 'VERY LONG LIST TITLE...',
-            duration: '5 days',
-            clothes: 3,
-          ),
-          _TripCard(
-            title: 'VERY LONG LIST TITLE...',
-            duration: '6 Hours',
-            clothes: 2,
-          ),
-        ],
-        SizedBox(height: 24),
-      ],
+    return Consumer<TripProvider>(
+      builder: (context, provider, child) {
+        if (provider.trips.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Column(
+          children: [
+            ...provider.trips.map((trip) => _TripCard(
+                  title: trip.name,
+                  duration: trip.duration,
+                  clothes: trip.items.length,
+                )),
+            const SizedBox(height: 24),
+          ],
+        );
+      },
     );
   }
 }

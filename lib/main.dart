@@ -7,6 +7,9 @@ import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
 import 'features/styles/data/services/looks_list_db_service.dart';
 import 'features/styles/presentation/providers/looks_list_provider.dart';
+import 'features/trip_planning/data/models/trip_model.dart';
+import 'features/trip_planning/data/trip_db_service.dart';
+import 'features/trip_planning/data/trip_provider.dart';
 import 'features/wardrobe/data/models/clothing_item.dart';
 import 'features/wardrobe/data/services/shopping_list_db_service.dart';
 import 'features/wardrobe/presentation/providers/selected_sample_provider.dart';
@@ -19,6 +22,7 @@ void main() async {
   // Initialize Hive
   await Hive.initFlutter();
   Hive.registerAdapter(ClothingItemAdapter());
+  Hive.registerAdapter(TripModelAdapter());
   await Hive.openBox<ClothingItem>('clothing_items');
 
   // Initialize ShoppingListDbService
@@ -28,6 +32,10 @@ void main() async {
   // Initialize LooksListDbService
   final looksListDbService = LooksListDbService();
   await looksListDbService.init();
+
+  // Initialize TripDbService
+  final tripDbService = TripDbService();
+  await tripDbService.init();
 
   // Initialize dependency injection
   await configureDependencies();
@@ -42,6 +50,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => LooksListProvider(looksListDbService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => TripProvider(tripDbService),
         ),
       ],
       child: const MyApp(),
