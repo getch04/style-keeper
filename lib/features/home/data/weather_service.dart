@@ -17,6 +17,7 @@ class WeatherInfo {
 class WeatherService {
   static const String _apiKey = '458890748a67e946adcb7137f914cdd1';
   Future<WeatherInfo?> fetchWeather() async {
+    return null;
     try {
       //request permission
       await Geolocator.requestPermission();

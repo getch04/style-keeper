@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model.dart';
 import 'package:style_keeper/features/wardrobe/presentation/providers/shopping_list_provider.dart';
+import 'package:style_keeper/features/wardrobe/presentation/widgets/shopping_list_detail_page.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class ShoppingTab extends StatefulWidget {
@@ -51,11 +53,7 @@ class _ShoppingTabState extends State<ShoppingTab> {
         return Column(
           children: shoppingLists
               .map((list) => _ShoppingListCard(
-                    name: list.name,
-                    budget: list.budget,
-                    spent:
-                        list.items.fold(0.0, (sum, item) => sum + (item.price)),
-                    imagePath: list.imagePath,
+                    list: list,
                   ))
               .toList(),
         );
@@ -65,23 +63,19 @@ class _ShoppingTabState extends State<ShoppingTab> {
 }
 
 class _ShoppingListCard extends StatelessWidget {
-  final String name;
-  final double budget;
-  final double spent;
-  final String? imagePath;
+  final ShoppingListModel list;
 
   const _ShoppingListCard({
-    required this.name,
-    required this.budget,
-    required this.spent,
-    this.imagePath,
+    required this.list,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push('/shopping-list-detail');
+        context.push('/${ShoppingListDetailPage.name}', extra: {
+          'list': list,
+        });
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
@@ -99,11 +93,11 @@ class _ShoppingListCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            if (imagePath != null)
+            if (list.imagePath != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.file(
-                  File(imagePath!),
+                  File(list.imagePath!),
                   width: 100,
                   height: 80,
                   fit: BoxFit.cover,
@@ -120,7 +114,7 @@ class _ShoppingListCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    list.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
@@ -131,7 +125,7 @@ class _ShoppingListCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Budget: ${budget.toStringAsFixed(2)}',
+                    'Budget: ${list.budget.toStringAsFixed(2)}',
                     style: const TextStyle(
                       color: Color(0xFFBDBDBD),
                       fontWeight: FontWeight.w500,
@@ -140,7 +134,7 @@ class _ShoppingListCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Spent: ${spent.toStringAsFixed(2)}',
+                    'Spent: ${list.items.fold(0.0, (sum, item) => sum + (item.price))}',
                     style: const TextStyle(
                       color: AppColors.yellow,
                       fontWeight: FontWeight.w700,

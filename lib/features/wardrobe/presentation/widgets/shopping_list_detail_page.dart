@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
-import 'package:style_keeper/shared/widgets/image_placeholer.dart';
+import 'package:style_keeper/features/wardrobe/domain/models/shopping_list_model.dart';
 
 class ShoppingListDetailPage extends StatefulWidget {
   const ShoppingListDetailPage({super.key});
+  static const name = 'shopping-list-detail';
 
   @override
   State<ShoppingListDetailPage> createState() => _ShoppingListDetailPageState();
@@ -17,6 +21,8 @@ class _ShoppingListDetailPageState extends State<ShoppingListDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+    final list = extra?['list'] as ShoppingListModel;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SingleChildScrollView(
@@ -33,10 +39,10 @@ class _ShoppingListDetailPageState extends State<ShoppingListDetailPage> {
                 color: Colors.white,
                 width: double.infinity,
                 height: 320,
-                child: const Center(
-                  child: ImagePlaceholer(
-                    width: 120,
-                    height: 120,
+                child: Center(
+                  child: Image.file(
+                    File(list.imagePath!),
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -59,34 +65,34 @@ class _ShoppingListDetailPageState extends State<ShoppingListDetailPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Name of this list',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 22,
+                                list.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
                                   color: Colors.black,
                                 ),
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
-                                'Budget: 12 000 00',
-                                style: TextStyle(
+                                'Budget: ${list.budget.toStringAsFixed(2)}',
+                                style: const TextStyle(
                                   color: Color(0xFFBDBDBD),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                                  fontSize: 12,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                'Spent: 240 000',
-                                style: TextStyle(
+                                'Spent: ${list.totalPrice.toStringAsFixed(2)}',
+                                style: const TextStyle(
                                   color: AppColors.yellow,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 20,
                                 ),
                               ),
                             ],
@@ -126,26 +132,19 @@ class _ShoppingListDetailPageState extends State<ShoppingListDetailPage> {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w700,
-                        fontSize: 20,
+                        fontSize: 16,
                       ),
                     ),
                     const SizedBox(height: 10),
                     // List items
-                    _ShoppingListItem(
-                      name: 'Blue jeans from JYTS',
-                      look: 'Summer vibes 2005',
-                      price: '120 000',
-                      checked: checked[0],
-                      onChanged: (val) => setState(() => checked[0] = val),
-                    ),
-                    _ShoppingListItem(
-                      name: 'Black Suit',
-                      look: 'Summer vibes 2005',
-                      price: '120 000',
-                      checked: checked[1],
-                      onChanged: (val) => setState(() => checked[1] = val),
-                    ),
-                    const SizedBox(height: 24),
+                    ...list.items.map((item) => _ShoppingListItem(
+                          name: item.name,
+                          placeOfPurchase: item.placeOfPurchase,
+                          imagePath: item.imagePath,
+                          price: item.price.toString(),
+                          checked: checked[0],
+                          onChanged: (val) => setState(() => checked[0] = val),
+                        )),
                   ],
                 ),
               ),
@@ -159,13 +158,15 @@ class _ShoppingListDetailPageState extends State<ShoppingListDetailPage> {
 
 class _ShoppingListItem extends StatelessWidget {
   final String name;
-  final String look;
+  final String placeOfPurchase;
+  final String imagePath;
   final String price;
   final bool checked;
   final ValueChanged<bool> onChanged;
   const _ShoppingListItem({
     required this.name,
-    required this.look,
+    required this.placeOfPurchase,
+    required this.imagePath,
     required this.price,
     required this.checked,
     required this.onChanged,
@@ -174,32 +175,45 @@ class _ShoppingListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Checkbox
-          Padding(
-            padding: const EdgeInsets.only(top: 18, right: 8, left: 4),
-            child: GestureDetector(
-              onTap: () => onChanged(!checked),
-              child: SvgPicture.asset(
-                checked ? AppImages.squareCheck : AppImages.squareUncheck,
-                width: 26,
-                height: 26,
-              ),
+          GestureDetector(
+            onTap: () => onChanged(!checked),
+            child: SvgPicture.asset(
+              checked ? AppImages.squareCheck : AppImages.squareUncheck,
+              width: 16,
+              height: 16,
             ),
           ),
+          const SizedBox(width: 8),
           // Image
-          const ImagePlaceholer(
-            width: 70,
-            height: 70,
-          ),
+          if (imagePath.isNotEmpty)
+            FittedBox(
+              fit: BoxFit.contain,
+              child: Container(
+                width: 100,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppColors.darkGray.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    File(imagePath),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(width: 12),
           // Details
           Expanded(
@@ -209,25 +223,18 @@ class _ShoppingListItem extends StatelessWidget {
                 Text(
                   name,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Look: ',
+                  'Place: $placeOfPurchase',
                   style: TextStyle(
                     color: Colors.grey.shade500,
                     fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  look,
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
+                    fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -235,12 +242,18 @@ class _ShoppingListItem extends StatelessWidget {
                   price,
                   style: const TextStyle(
                     color: AppColors.yellow,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
+          ),
+
+          SvgPicture.asset(
+            AppImages.eye,
+            width: 24,
+            height: 24,
           ),
         ],
       ),

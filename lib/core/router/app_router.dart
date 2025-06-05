@@ -106,8 +106,8 @@ class AppRouter {
         ),
       ),
       GoRoute(
-        path: '/shopping-list-detail',
-        name: 'shopping-list-detail',
+        path: '/${ShoppingListDetailPage.name}',
+        name: ShoppingListDetailPage.name,
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const AppMainPage(child: ShoppingListDetailPage()),
@@ -144,9 +144,9 @@ class AppRouter {
         pageBuilder: (context, state) {
           return CustomTransitionPage(
             key: state.pageKey,
-            child: CameraOverlayPage(
-            ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            child: const CameraOverlayPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
           );

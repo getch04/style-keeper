@@ -37,8 +37,16 @@ class ClothingItem extends HiveObject {
     required this.createdAt,
   });
 
-  factory ClothingItem.fromJson(Map<String, dynamic> json) {
-    return _$ClothingItemFromJson(json);
+  factory ClothingItem.fromJson(Map<dynamic, dynamic> map) {
+    return ClothingItem(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      brand: map['brand'] as String,
+      placeOfPurchase: map['placeOfPurchase'] as String,
+      price: (map['price'] as num).toDouble(),
+      imagePath: map['imagePath'] as String,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+    );
   }
 
   Map<String, dynamic> toJson() {

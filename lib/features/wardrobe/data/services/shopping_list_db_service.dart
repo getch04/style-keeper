@@ -31,7 +31,7 @@ class ShoppingListDbService {
       updatedAt: now,
     );
 
-    await _box.put(shoppingList.id, shoppingList.toMap());
+    await _box.put(shoppingList.id, shoppingList.toJson());
     return shoppingList;
   }
 
@@ -39,16 +39,14 @@ class ShoppingListDbService {
   Future<List<ShoppingListModel>> getAllShoppingLists() async {
     print("========getAllShoppingLists=========");
     print(_box.values);
-    return _box.values
-        .map((map) => ShoppingListModel.fromMap(Map<String, dynamic>.from(map)))
-        .toList();
+    return _box.values.map((map) => ShoppingListModel.fromJson(map)).toList();
   }
 
   // Get a shopping list by ID
   Future<ShoppingListModel?> getShoppingList(String id) async {
     final map = _box.get(id);
     if (map == null) return null;
-    return ShoppingListModel.fromMap(Map<String, dynamic>.from(map));
+    return ShoppingListModel.fromJson(map);
   }
 
   // Update a shopping list
@@ -58,7 +56,7 @@ class ShoppingListDbService {
       updatedAt: DateTime.now(),
       totalPrice: shoppingList.calculatedTotalPrice,
     );
-    await _box.put(updatedList.id, updatedList.toMap());
+    await _box.put(updatedList.id, updatedList.toJson());
     return updatedList;
   }
 
@@ -83,7 +81,7 @@ class ShoppingListDbService {
       updatedAt: DateTime.now(),
     );
 
-    await _box.put(updatedList.id, updatedList.toMap());
+    await _box.put(updatedList.id, updatedList.toJson());
     return updatedList;
   }
 
@@ -105,7 +103,7 @@ class ShoppingListDbService {
       updatedAt: DateTime.now(),
     );
 
-    await _box.put(updatedList.id, updatedList.toMap());
+    await _box.put(updatedList.id, updatedList.toJson());
     return updatedList;
   }
 
@@ -128,7 +126,7 @@ class ShoppingListDbService {
       updatedAt: DateTime.now(),
     );
 
-    await _box.put(updatedList.id, updatedList.toMap());
+    await _box.put(updatedList.id, updatedList.toJson());
     return updatedList;
   }
 }

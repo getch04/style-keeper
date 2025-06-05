@@ -60,7 +60,7 @@ class ShoppingListModel {
   }
 
   // Convert model to Map for database operations
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
@@ -74,15 +74,16 @@ class ShoppingListModel {
   }
 
   // Create model from Map (from database)
-  factory ShoppingListModel.fromMap(Map<String, dynamic> map) {
+  factory ShoppingListModel.fromJson(Map<dynamic, dynamic> map) {
     return ShoppingListModel(
       id: map['id'] as String,
       name: map['name'] as String,
       items: (map['items'] as List)
-          .map((item) => ClothingItem.fromJson(item as Map<String, dynamic>))
+          .map((item) => ClothingItem.fromJson(
+              Map<String, dynamic>.from(item as Map<dynamic, dynamic>)))
           .toList(),
-      totalPrice: map['totalPrice'] as double,
-      budget: map['budget'] as double,
+      totalPrice: (map['totalPrice'] as num).toDouble(),
+      budget: (map['budget'] as num).toDouble(),
       imagePath: map['imagePath'] as String?,
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),
