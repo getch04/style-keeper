@@ -109,17 +109,30 @@ class _TripListTabState extends State<TripListTab> {
                   ),
                 ),
                 if (provider.trips.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40),
-                    child: Center(
-                      child: Text(
-                        'No trips yet',
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.card_travel,
+                          size: 64, color: AppColors.yellow.withOpacity(0.7)),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'No trips yet!',
                         style: TextStyle(
-                          color: AppColors.darkGray,
-                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Colors.black87,
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Tap the + button to add your first trip.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   )
                 else if (filteredTrips.isEmpty)
                   const Padding(

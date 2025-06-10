@@ -209,39 +209,7 @@ class _WardrobePageState extends State<WardrobePage> {
               );
             }),
           ),
-          // Search bar
-          // Container(
-          //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          //   decoration: BoxDecoration(
-          //     color: AppColors.white,
-          //     borderRadius: BorderRadius.circular(16),
-          //     boxShadow: [
-          //       BoxShadow(
-          //         color: AppColors.darkGray.withOpacity(0.10),
-          //         blurRadius: 12,
-          //         offset: const Offset(0, 0),
-          //       ),
-          //     ],
-          //   ),
-          //   child: Row(
-          //     children: [
-          //       SvgPicture.asset(
-          //         AppImages.search,
-          //         width: 22,
-          //         color: AppColors.darkGray,
-          //       ),
-          //       const SizedBox(width: 12),
-          //       const Text(
-          //         'Search',
-          //         style: TextStyle(
-          //           color: AppColors.darkGray,
-          //           fontWeight: FontWeight.w500,
-          //           fontSize: 16,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+
           const SizedBox(height: 4),
           _selectedTab == 0
               ? MyClothesTab(key: _clothesTabKey)

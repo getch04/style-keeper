@@ -120,14 +120,30 @@ class _ShoppingTabState extends State<ShoppingTab> {
                 ),
 
                 if (shoppingLists.isEmpty)
-                  const Center(
-                    child: Text(
-                      'No shopping lists yet',
-                      style: TextStyle(
-                        color: AppColors.darkGray,
-                        fontSize: 16,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shopping_bag,
+                          size: 64, color: AppColors.yellow.withOpacity(0.7)),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'No shopping lists yet!',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Tap the + button to add your first shopping list.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
 
                 ...filteredLists
