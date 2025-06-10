@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
+import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/trip_planning/data/models/trip_model.dart';
 import 'package:style_keeper/features/trip_planning/data/trip_provider.dart';
+import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/choose_items_bottom_sheet.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
 
@@ -22,6 +25,7 @@ class _AddTripPageState extends State<AddTripPage> {
   final TextEditingController _durationController = TextEditingController();
   bool _isSaving = false;
   bool _isInitialized = false;
+  List<ClothingItem> _selectedItems = [];
 
   @override
   void initState() {
@@ -68,6 +72,7 @@ class _AddTripPageState extends State<AddTripPage> {
             for (final item in trip.items) {
               provider.addTemporaryItem(item);
             }
+            _selectedItems = List<ClothingItem>.from(trip.items);
           }
         }
         _isInitialized = true;
@@ -104,7 +109,7 @@ class _AddTripPageState extends State<AddTripPage> {
             name: _nameController.text,
             duration: _durationController.text,
             imagePath: provider.newTripImagePath ?? trip.imagePath,
-            items: provider.temporaryItems,
+            items: _selectedItems,
             updatedAt: DateTime.now(),
           );
           await provider.updateTrip(updatedTrip);
@@ -207,9 +212,9 @@ class _AddTripPageState extends State<AddTripPage> {
                               ),
                             ),
                             ElevatedButton.icon(
-                              onPressed: () {
-                                //show buttom sheet
-                                showModalBottomSheet(
+                              onPressed: () async {
+                                final result = await showModalBottomSheet<
+                                    List<ClothingItem>>(
                                   context: context,
                                   isScrollControlled: true,
                                   builder: (context) => SizedBox(
@@ -218,6 +223,17 @@ class _AddTripPageState extends State<AddTripPage> {
                                     child: const ChooseItemsBottomSheet(),
                                   ),
                                 );
+                                if (result != null && result.isNotEmpty) {
+                                  setState(() {
+                                    _selectedItems = result;
+                                  });
+                                  // Also update provider's temporaryItems for compatibility
+                                  final provider = context.read<TripProvider>();
+                                  provider.clearTemporaryItems();
+                                  for (final item in result) {
+                                    provider.addTemporaryItem(item);
+                                  }
+                                }
                               },
                               icon: const Icon(Icons.add, color: Colors.white),
                               label: const Text(
@@ -242,7 +258,7 @@ class _AddTripPageState extends State<AddTripPage> {
                           ],
                         ),
                       ),
-                      if (provider.temporaryItems.isEmpty)
+                      if (_selectedItems.isEmpty)
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 24),
                           child: Center(
@@ -255,7 +271,17 @@ class _AddTripPageState extends State<AddTripPage> {
                             ),
                           ),
                         ),
-                      // TODO: List clothing items here
+                      ..._selectedItems.map((item) => _TripItemTile(
+                            item: item,
+                            onDelete: () {
+                              setState(() {
+                                _selectedItems
+                                    .removeWhere((i) => i.id == item.id);
+                              });
+                              final provider = context.read<TripProvider>();
+                              provider.removeTemporaryItem(item.id);
+                            },
+                          )),
                       const SizedBox(height: 32),
                     ],
                   ),
@@ -326,6 +352,86 @@ class _AddTripPageState extends State<AddTripPage> {
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
+      ),
+    );
+  }
+}
+
+// Trip item tile for displaying selected items
+class _TripItemTile extends StatelessWidget {
+  final ClothingItem item;
+  final VoidCallback onDelete;
+  const _TripItemTile({required this.item, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Delete icon
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: GestureDetector(
+              onTap: onDelete,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: SvgPicture.asset(
+                    AppImages.delete,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(
+              File(item.imagePath),
+              height: 80,
+              width: 110,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Description and price
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${item.price}',
+                  style: const TextStyle(
+                    color: AppColors.yellow,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

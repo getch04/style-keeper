@@ -56,11 +56,15 @@ class LooksListProvider extends ChangeNotifier {
   Future<void> createLooksList({
     required String name,
     String? imagePath,
+    String? season,
+    String? weather,
   }) async {
     final newList = await _dbService.createLooksList(
       name: name,
       imagePath: imagePath,
       items: _temporaryItems,
+      season: season,
+      weather: weather,
     );
 
     _looksLists = [..._looksLists, newList];

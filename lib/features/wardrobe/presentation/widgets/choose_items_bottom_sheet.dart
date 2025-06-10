@@ -9,7 +9,8 @@ import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_servi
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class ChooseItemsBottomSheet extends StatefulWidget {
-  const ChooseItemsBottomSheet({super.key});
+  final void Function(List<ClothingItem>)? onItemsSelected;
+  const ChooseItemsBottomSheet({super.key, this.onItemsSelected});
 
   @override
   State<ChooseItemsBottomSheet> createState() => _ChooseItemsBottomSheetState();
@@ -21,6 +22,7 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
   final List<String> tabs = ['All clothes', 'Completed looks', 'Recomendation'];
   final Set<int> selectedItems = {};
   late Future<List<ClothingItem>> _clothesFuture;
+  List<ClothingItem> _allClothes = [];
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
         }
 
         final clothes = snapshot.data ?? [];
+        _allClothes = clothes;
         if (clothes.isEmpty) {
           return const Center(
             child: Text(
@@ -338,7 +341,17 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: selectedItems.isNotEmpty ? () {} : null,
+                    onPressed: selectedItems.isNotEmpty
+                        ? () {
+                            final selected = selectedItems
+                                .map((i) => _allClothes[i])
+                                .toList();
+                            if (widget.onItemsSelected != null) {
+                              widget.onItemsSelected!(selected);
+                            }
+                            Navigator.of(context).pop(selected);
+                          }
+                        : null,
                     icon: SvgPicture.asset(
                       AppImages.plus,
                       width: 22,

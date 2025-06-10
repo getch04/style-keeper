@@ -7,6 +7,8 @@ class LooksListModel {
   final String? imagePath;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? season;
+  final String? weather;
 
   LooksListModel({
     required this.id,
@@ -15,6 +17,8 @@ class LooksListModel {
     this.imagePath,
     required this.createdAt,
     required this.updatedAt,
+    this.season,
+    this.weather,
   });
 
   // Calculate total price from items
@@ -30,6 +34,8 @@ class LooksListModel {
     String? imagePath,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? season,
+    String? weather,
   }) {
     return LooksListModel(
       id: id ?? this.id,
@@ -38,6 +44,8 @@ class LooksListModel {
       imagePath: imagePath ?? this.imagePath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      season: season ?? this.season,
+      weather: weather ?? this.weather,
     );
   }
 
@@ -50,6 +58,8 @@ class LooksListModel {
       'imagePath': imagePath,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'season': season,
+      'weather': weather,
     };
   }
 
@@ -65,6 +75,8 @@ class LooksListModel {
       imagePath: map['imagePath'] as String?,
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),
+      season: map['season'] as String?,
+      weather: map['weather'] as String?,
     );
   }
 }

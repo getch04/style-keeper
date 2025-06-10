@@ -26,6 +26,7 @@ class AppImages {
   static const String squareCheck = 'assets/icons/square_check.svg';
   static const String squareUncheck = 'assets/icons/square_uncheck.svg';
   static const String eye = 'assets/icons/eye.svg';
+  static const String dropdown = 'assets/icons/dropdown.svg';
 
   //weather icons
   static const String sun = 'assets/icons/weather/sun.svg';

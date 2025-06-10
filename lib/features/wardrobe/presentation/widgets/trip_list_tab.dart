@@ -53,16 +53,13 @@ class _TripListTabState extends State<TripListTab> {
     return Consumer<TripProvider>(
       builder: (context, provider, child) {
         final filteredTrips = _filterTrips(provider.trips);
-        if (provider.trips.isEmpty) {
-          return const SizedBox.shrink();
-        }
         return SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Column(
               children: [
                 const SizedBox(height: 16),
-                // Search Bar
+                // Search Bar (always visible)
                 Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
@@ -111,8 +108,36 @@ class _TripListTabState extends State<TripListTab> {
                     ),
                   ),
                 ),
-                ...filteredTrips.map((trip) => _TripCard(trip: trip)),
-                const SizedBox(height: 24),
+                if (provider.trips.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Text(
+                        'No trips yet',
+                        style: TextStyle(
+                          color: AppColors.darkGray,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  )
+                else if (filteredTrips.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 40),
+                    child: Center(
+                      child: Text(
+                        'No trips match your search',
+                        style: TextStyle(
+                          color: AppColors.darkGray,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  )
+                else ...[
+                  ...filteredTrips.map((trip) => _TripCard(trip: trip)),
+                  const SizedBox(height: 24),
+                ],
               ],
             ),
           ),

@@ -17,6 +17,8 @@ class LooksListDbService {
     required String name,
     String? imagePath,
     List<ClothingItem> items = const [],
+    String? season,
+    String? weather,
   }) async {
     final now = DateTime.now();
     final looksList = LooksListModel(
@@ -26,6 +28,8 @@ class LooksListDbService {
       imagePath: imagePath,
       createdAt: now,
       updatedAt: now,
+      season: season,
+      weather: weather,
     );
 
     await _box.put(looksList.id, looksList.toJson());
