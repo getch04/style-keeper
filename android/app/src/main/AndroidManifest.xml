@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="style_keeper"
+        android:label="Style Keeper"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity
