@@ -349,7 +349,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 34),
+                  const SizedBox(height: 14),
                   // Shutter and gallery button row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -362,7 +362,6 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                           iconSize: 48,
                           onPressed: _pickImageFromGallery,
                         ),
-                      if (_pickedImage == null) const SizedBox(width: 32),
                       GestureDetector(
                         onTap: () async {
                           if (_pickedImage != null) {
