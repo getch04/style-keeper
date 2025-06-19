@@ -67,7 +67,9 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
         cameras[0],
         ResolutionPreset.high,
         enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.jpeg,
       );
+      await _controller!.setDescription(cameras[0]);
       await _controller!.initialize();
       setState(() {
         _isCameraInitialized = true;

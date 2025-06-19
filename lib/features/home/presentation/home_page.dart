@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/home/data/weather_service.dart';
+import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
+import 'package:style_keeper/features/styles/presentation/providers/looks_list_provider.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,6 +25,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _weatherFuture = WeatherService().fetchWeather();
+    // Load looks if not already loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<LooksListProvider>();
+      if (provider.looksLists.isEmpty) {
+        provider.loadLooksLists();
+      }
+    });
   }
 
   @override
@@ -59,7 +71,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 24),
         // Section Title
         const Text(
-          'Recommendations for today:',
+          'All Looks',
           style: TextStyle(
             color: AppColors.darkGray,
             fontWeight: FontWeight.bold,
@@ -67,8 +79,60 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(height: 16),
-        // Recommendations List
-        ...List.generate(2, (index) => _buildRecommendationCard()),
+        // Looks List
+        Consumer<LooksListProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (provider.looksLists.isEmpty) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.yellow.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.style,
+                        size: 64, color: AppColors.yellow.withOpacity(0.7)),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'No looks yet!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
+                    child: const Text(
+                      'Create your first look to get started.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              );
+            }
+
+            return Column(
+              children: provider.looksLists
+                  .map((look) => _buildRecommendationCard(look))
+                  .toList(),
+            );
+          },
+        ),
       ],
     );
   }
@@ -92,7 +156,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _mapWeatherIcon(int temp) {
-    //let's map the icon based on the temprature
     if (temp > 30) {
       return AppImages.sun;
     } else if (temp > 20) {
@@ -153,17 +216,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          // if (icon.isNotEmpty)
-          //   CachedNetworkImage(
-          //     imageUrl: icon,
-          //     placeholder: (context, url) => const CircularProgressIndicator(),
-          //     errorWidget: (context, url, error) => SvgPicture.asset(
-          //       icon,
-          //       width: 60,
-          //       height: 60,
-          //     ),
-          //   )
-          // else
           SvgPicture.asset(
             _mapWeatherIcon(int.tryParse(temperature) ?? 0),
             width: 60,
@@ -174,7 +226,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildRecommendationCard() {
+  Widget _buildRecommendationCard(LooksListModel look) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -183,12 +235,12 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkGray.withValues(alpha: 0.12),
+            color: AppColors.darkGray.withOpacity(0.12),
             blurRadius: 24,
             offset: const Offset(0, 0),
           ),
           BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.06),
+            color: AppColors.black.withOpacity(0.06),
             blurRadius: 8,
             offset: const Offset(0, 0),
           ),
@@ -198,20 +250,20 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title and item count
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Summer vibes 2002',
-                style: TextStyle(
+                look.name,
+                style: const TextStyle(
                   color: AppColors.darkGray,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
               ),
               Text(
-                '12 items',
-                style: TextStyle(
+                '${look.items.length} items',
+                style: const TextStyle(
                   color: AppColors.darkGray,
                   fontWeight: FontWeight.w400,
                   fontSize: 12,
@@ -220,17 +272,31 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 12),
-          // Horizontal list of image placeholders
+          // Horizontal list of images
           SizedBox(
             height: 113,
             child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: 4,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (context, index) => const ImagePlaceholer(
-                      width: 113,
-                      height: 91,
-                    )),
+              scrollDirection: Axis.horizontal,
+              itemCount: look.items.length.clamp(0, 4),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final item = look.items[index];
+                return item.imagePath.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(item.imagePath),
+                          width: 113,
+                          height: 91,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : const ImagePlaceholer(
+                        width: 113,
+                        height: 91,
+                      );
+              },
+            ),
           ),
         ],
       ),

@@ -131,14 +131,43 @@ class _StylesPageState extends State<StylesPage> {
                       _filterLooksLists(provider.looksLists);
 
                   if (filteredLooksLists.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'No looks created yet',
-                        style: TextStyle(
-                          color: AppColors.darkGray,
-                          fontSize: 16,
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppColors.yellow.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.style,
+                              size: 64,
+                              color: AppColors.yellow.withOpacity(0.7)),
                         ),
-                      ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'No looks yet!',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 16),
+                          child: const Text(
+                            'Create your first look to start organizing your style.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                     );
                   }
 
@@ -283,7 +312,7 @@ class CreateLookButton extends StatelessWidget {
             color: AppColors.white,
           ),
           label: const Text(
-            'Add new TRIP',
+            'Create new LOOK',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,

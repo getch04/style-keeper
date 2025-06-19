@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -186,10 +188,17 @@ class _TripCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const ImagePlaceholer(
-              width: 100,
-              height: 80,
-            ),
+            trip.imagePath.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      File(trip.imagePath),
+                      width: 100,
+                      height: 80,
+                      // fit: BoxFit.cover,
+                    ),
+                  )
+                : const ImagePlaceholer(),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
