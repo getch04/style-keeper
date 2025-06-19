@@ -1,6 +1,5 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 // import 'package:style_keeper/core/plugin/model.dart';
 import 'package:style_keeper/core/plugin/overlay_shape.dart';
 
@@ -83,7 +82,7 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
       children: [
         CameraPreview(controller),
         Padding(
-          padding: const EdgeInsets.only(bottom: 105),
+          padding: const EdgeInsets.only(bottom: 0),
           child: OverlayShape(
             imagePath: widget.imagePath,
           ),
@@ -130,9 +129,9 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
                   enableFeedback: true,
                   color: Colors.transparent,
                   onPressed: () async {
-                    for (int i = 10; i > 0; i--) {
-                      await HapticFeedback.vibrate();
-                    }
+                    // for (int i = 10; i > 0; i--) {
+                    //   await HapticFeedback.vibrate();
+                    // }
 
                     XFile file = await controller.takePicture();
                     widget.onCapture(file);

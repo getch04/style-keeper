@@ -95,19 +95,41 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
     final original = img.decodeImage(bytes);
     if (original == null) return;
 
-    // Get screen and overlay sizes
+    // Get screen and overlay sizes - EXACTLY match OverlayShape calculation
     final screenSize = MediaQuery.of(context).size;
-    final previewWidth = screenSize.width;
-    final previewHeight = screenSize.height;
-    final squareSize = previewWidth - 32;
-    final squareLeft = (previewWidth - squareSize) / 2;
-    final squareTop = (previewHeight - squareSize) / 2;
+    final squareSize =
+        screenSize.shortestSide * 0.8; // EXACT match to OverlayShape
+
+    // Calculate overlay position - EXACTLY match OverlayShape (centered)
+    final squareLeft = (screenSize.width - squareSize) / 2;
+    final squareTop =
+        (screenSize.height - squareSize) / 2; // Centered vertically
 
     // Map overlay rect to image coordinates
+    final imageAspectRatio = original.width / original.height;
+    final screenAspectRatio = screenSize.width / screenSize.height;
+
+    double previewWidth, previewHeight;
+    double offsetX = 0, offsetY = 0;
+
+    if (imageAspectRatio > screenAspectRatio) {
+      // Image is wider - fit height, crop width
+      previewHeight = screenSize.height;
+      previewWidth = screenSize.height * imageAspectRatio;
+      offsetX = (previewWidth - screenSize.width) / 2;
+    } else {
+      // Image is taller - fit width, crop height
+      previewWidth = screenSize.width;
+      previewHeight = screenSize.width / imageAspectRatio;
+      offsetY = (previewHeight - screenSize.height) / 2;
+    }
+
+    // Convert overlay screen coordinates to image coordinates
     final scaleX = original.width / previewWidth;
     final scaleY = original.height / previewHeight;
-    final cropX = (squareLeft * scaleX).round();
-    final cropY = (squareTop * scaleY).round();
+
+    final cropX = ((squareLeft + offsetX) * scaleX).round();
+    final cropY = ((squareTop + offsetY) * scaleY).round();
     final cropSize = (squareSize * scaleX).round(); // Use scaleX for square
 
     // Ensure crop rect is within image bounds
