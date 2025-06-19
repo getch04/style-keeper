@@ -7,9 +7,7 @@ import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
-import 'package:style_keeper/features/wardrobe/presentation/screens/camera_overlay_page.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
-import 'package:style_keeper/shared/widgets/notice_dialog.dart';
 import 'package:uuid/uuid.dart';
 
 class AddClothingPage extends StatefulWidget {
@@ -102,24 +100,6 @@ class _AddClothingPageState extends State<AddClothingPage> {
     setState(() => _isSaving = false);
     widget.onClothingSaved?.call();
     if (mounted) context.go('/wardrobe');
-  }
-
-  void _showNoticeDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.85),
-      builder: (context) => NoticeDialog(
-        onContinue: () {
-          context.push('/${CameraOverlayPage.name}', extra: {
-            'returnTo': AddClothingPage.name,
-          });
-        },
-        onCancel: () {
-          GoRouter.of(context).pop();
-        },
-      ),
-    );
   }
 
   @override
