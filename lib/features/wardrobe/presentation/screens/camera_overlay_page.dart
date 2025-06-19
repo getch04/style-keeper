@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
 import 'package:style_keeper/core/plugin/flutter_camera_overlay.dart';
+import 'package:style_keeper/core/plugin/overlay_shape.dart';
 import 'package:style_keeper/features/styles/presentation/screens/add_looks_item_page.dart';
 import 'package:style_keeper/features/styles/presentation/screens/create_style_page.dart';
 import 'package:style_keeper/features/trip_planning/presentation/screens/add_trip_page.dart';
@@ -33,6 +35,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
   bool _isCameraInitialized = false;
   String? returnTo;
   bool _isInitialized = false;
+  XFile? _pickedImage;
 
   final List<String> icons = [
     AppImages.blackNoCloth,
@@ -81,6 +84,23 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
   void dispose() {
     _controller?.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    final picker = ImagePicker();
+    try {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _pickedImage = XFile(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      // Optionally show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to pick image: $e')),
+      );
+    }
   }
 
   void _handleImageCapture(XFile file) async {
@@ -156,6 +176,11 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
       'squareSize': squareSize,
     };
 
+    // Reset picked image after use
+    setState(() {
+      _pickedImage = null;
+    });
+
     // Route based on returnTo parameter
     switch (returnTo) {
       case AddShoppingItemPage.name:
@@ -195,16 +220,33 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          _isCameraInitialized && _controller != null
-              ? CameraOverlay(
-                  _controller!.description,
-                  _handleImageCapture,
-                  imagePath: hasOverlay ? icons[selectedIndex] : icons[0],
-                  showSample: selectedIndex != 0,
+          // Show picked image if available, else camera overlay
+          _pickedImage != null
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.file(
+                      File(_pickedImage!.path),
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                    OverlayShape(
+                      imagePath: icons[selectedIndex],
+                      showSample: selectedIndex != 0,
+                    ),
+                  ],
                 )
-              : const Center(
-                  child: CircularProgressIndicator(),
-                ),
+              : (_isCameraInitialized && _controller != null
+                  ? CameraOverlay(
+                      _controller!.description,
+                      _handleImageCapture,
+                      imagePath: hasOverlay ? icons[selectedIndex] : icons[0],
+                      showSample: selectedIndex != 0,
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(),
+                    )),
 
           // Back button
           SafeArea(
@@ -267,9 +309,20 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                         final isSelected = selectedIndex == index;
                         return GestureDetector(
                           onTap: () {
-                            Provider.of<SelectedSampleProvider>(context,
-                                    listen: false)
-                                .setSelectedIndex(index);
+                            if (index == 0) {
+                              _pickImageFromGallery();
+                            } else {
+                              Provider.of<SelectedSampleProvider>(context,
+                                      listen: false)
+                                  .setSelectedIndex(index);
+                              if (_pickedImage == null) {
+                                setState(() {
+                                  _pickedImage = null;
+                                });
+                              } else {
+                                setState(() {}); // Just update overlay
+                              }
+                            }
                           },
                           child: Container(
                             width: 75,
@@ -297,33 +350,49 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                     ),
                   ),
                   const SizedBox(height: 34),
-                  // Shutter button
-                  GestureDetector(
-                    onTap: () async {
-                      if (_controller != null &&
-                          _controller!.value.isInitialized) {
-                        final XFile file = await _controller!.takePicture();
-                        _handleImageCapture(file);
-                      }
-                    },
-                    child: Container(
-                      width: 60,
-                      height: 60,
-                      decoration: const BoxDecoration(
-                        color: AppColors.yellow,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
+                  // Shutter and gallery button row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Only show gallery button if not already showing picked image
+                      if (_pickedImage == null)
+                        IconButton(
+                          icon: const Icon(Icons.photo_library,
+                              color: Colors.white),
+                          iconSize: 48,
+                          onPressed: _pickImageFromGallery,
+                        ),
+                      if (_pickedImage == null) const SizedBox(width: 32),
+                      GestureDetector(
+                        onTap: () async {
+                          if (_pickedImage != null) {
+                            _handleImageCapture(_pickedImage!);
+                          } else if (_controller != null &&
+                              _controller!.value.isInitialized) {
+                            final XFile file = await _controller!.takePicture();
+                            _handleImageCapture(file);
+                          }
+                        },
                         child: Container(
-                          width: 36,
-                          height: 36,
+                          width: 60,
+                          height: 60,
                           decoration: const BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.yellow,
                             shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                 ],
