@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class OverlayShape extends StatelessWidget {
-  const OverlayShape({super.key, required this.imagePath});
+  const OverlayShape(
+      {super.key, required this.imagePath, this.showSample = true});
   final String imagePath;
+  final bool showSample;
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +34,16 @@ class OverlayShape extends StatelessWidget {
                 ),
               ),
             )),
-        Align(
-          alignment: Alignment.center,
-          child: // LET'S ADD THE SELECTED SAMPLE SVG HERE,
-              SvgPicture.asset(
-            imagePath,
-            width: squareSize * 0.55,
-            color: Colors.white.withOpacity(0.7),
-            fit: BoxFit.contain,
+        if (showSample)
+          Align(
+            alignment: Alignment.center,
+            child: SvgPicture.asset(
+              imagePath,
+              width: squareSize * 0.55,
+              color: Colors.white.withOpacity(0.7),
+              fit: BoxFit.contain,
+            ),
           ),
-        ),
         // Overlay mask
         ColorFiltered(
           colorFilter: const ColorFilter.mode(Colors.black54, BlendMode.srcOut),

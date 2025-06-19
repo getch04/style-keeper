@@ -200,6 +200,7 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                   _controller!.description,
                   _handleImageCapture,
                   imagePath: hasOverlay ? icons[selectedIndex] : icons[0],
+                  showSample: selectedIndex != 0,
                 )
               : const Center(
                   child: CircularProgressIndicator(),

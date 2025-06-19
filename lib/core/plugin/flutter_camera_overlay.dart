@@ -18,6 +18,7 @@ class CameraOverlay extends StatefulWidget {
     this.loadingWidget,
     this.infoMargin,
     required this.imagePath,
+    this.showSample = true,
   });
   final CameraDescription camera;
   // final OverlayModel model;
@@ -29,6 +30,7 @@ class CameraOverlay extends StatefulWidget {
   final Widget? loadingWidget;
   final EdgeInsets? infoMargin;
   final String imagePath;
+  final bool showSample;
 
   @override
   _FlutterCameraOverlayState createState() => _FlutterCameraOverlayState();
@@ -85,6 +87,7 @@ class _FlutterCameraOverlayState extends State<CameraOverlay> {
           padding: const EdgeInsets.only(bottom: 0),
           child: OverlayShape(
             imagePath: widget.imagePath,
+            showSample: widget.showSample,
           ),
         ),
         if (widget.label != null || widget.info != null)
