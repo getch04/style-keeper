@@ -257,24 +257,82 @@ class _StyleCollection extends StatelessWidget {
             const SizedBox(height: 12),
             SizedBox(
               height: 110,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: images.map((image) {
-                  return Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    height: 91,
-                    width: 113,
-                    child: image != null
-                        ? ClipRRect(
+              child: Consumer<LooksListProvider>(
+                builder: (context, provider, _) {
+                  final looksList = provider.looksLists.firstWhere(
+                    (list) => list.id == looksListId,
+                    orElse: () => LooksListModel(
+                      id: '',
+                      name: '',
+                      items: const [],
+                      imagePath: null,
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                    ),
+                  );
+
+                  return ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      // Main style image
+                      if (looksList.imagePath != null &&
+                          looksList.imagePath!.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          height: 91,
+                          width: 113,
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
+                            // border: Border.all(
+                            //   // color: AppColors.yellow,
+                            //   width: 2,
+                            // ),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
                             child: Image.file(
-                              File(image),
+                              File(looksList.imagePath!),
                               fit: BoxFit.cover,
                             ),
-                          )
-                        : const ImagePlaceholer(),
+                          ),
+                        )
+                      else
+                        Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          height: 91,
+                          width: 113,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: AppColors.yellow,
+                              width: 2,
+                            ),
+                          ),
+                          child: const Center(
+                            child: ImagePlaceholer(),
+                          ),
+                        ),
+
+                      // Item images
+                      ...looksList.items.take(2).map((item) {
+                        return Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          height: 91,
+                          width: 113,
+                          child: item.imagePath.isNotEmpty
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    File(item.imagePath),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : const ImagePlaceholer(),
+                        );
+                      }).toList(),
+                    ],
                   );
-                }).toList(),
+                },
               ),
             ),
           ],
