@@ -34,6 +34,14 @@ class AppImages {
   static const String rain = 'assets/icons/weather/rain.svg';
   static const String snow = 'assets/icons/weather/snow.svg';
   static const String wind = 'assets/icons/weather/wind.svg';
+  static const String storm = 'assets/icons/weather/storm.svg';
+
+  static const String yellowSun = 'assets/icons/weather/yellow_sun.svg';
+  static const String yellowCloud = 'assets/icons/weather/yellow_cloud.svg';
+  static const String yellowRain = 'assets/icons/weather/yellow_rain.svg';
+  static const String yellowSnow = 'assets/icons/weather/yellow_snow.svg';
+  static const String yellowWind = 'assets/icons/weather/yellow_wind.svg';
+  static const String yellowStorm = 'assets/icons/weather/yellow_storm.svg';
 
   //clothing icons - black
   static const String blackTshirt = 'assets/icons/cloths/black/tshirt.svg';

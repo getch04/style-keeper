@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
-import 'package:style_keeper/features/home/data/weather_service.dart';
 import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
 import 'package:style_keeper/features/styles/presentation/providers/looks_list_provider.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
@@ -19,56 +18,69 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<WeatherInfo?>? _weatherFuture;
+  int selectedWeatherIndex=0;
 
-  @override
-  void initState() {
-    super.initState();
-    _weatherFuture = WeatherService().fetchWeather();
-    // Load looks if not already loaded
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<LooksListProvider>();
-      if (provider.looksLists.isEmpty) {
-        provider.loadLooksLists();
-      }
-    });
-  }
+  final List<Map<String, String>> weatherIcons = [
+    {'selected': AppImages.yellowSun, 'unselected': AppImages.sun},
+    {'selected': AppImages.yellowWind, 'unselected': AppImages.wind},
+    {'selected': AppImages.yellowCloud, 'unselected': AppImages.cloud},
+    {'selected': AppImages.yellowRain, 'unselected': AppImages.rain},
+    {'selected': AppImages.yellowStorm, 'unselected': AppImages.storm},
+    {'selected': AppImages.yellowSnow, 'unselected': AppImages.snow},
+  ];
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Weather Card
-        FutureBuilder<WeatherInfo?>(
-          future: _weatherFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildWeatherCard(
-                date: _todayString(),
-                temperature: '---',
-                icon: "",
-                description: 'Loading...',
-              );
-            } else if (snapshot.hasData && snapshot.data != null) {
-              final weather = snapshot.data!;
-              return _buildWeatherCard(
-                date: _todayString(),
-                temperature: '${weather.temperature.round()}°C',
-                icon: weather.icon,
-                description: weather.description,
-              );
-            } else {
-              return _buildWeatherCard(
-                date: _todayString(),
-                temperature: '---',
-                icon: "",
-                description: 'Unavailable',
-              );
-            }
-          },
+        // New Weather Card Design
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          margin: const EdgeInsets.only(bottom: 24),
+          child: Column(
+            // mainAxisSize: MainAxisSize.min,
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'What is the weather like today?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              const SizedBox(height: 22),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(weatherIcons.length, (index) {
+                  final isSelected = selectedWeatherIndex == index;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedWeatherIndex = index;
+                      });
+                    },
+                    child: SvgPicture.asset(
+                      isSelected
+                          ? weatherIcons[index]['selected']!
+                          : weatherIcons[index]['unselected']!,
+                      width: 44,
+                      height: 44,
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 24),
         // Section Title
         const Text(
           'All Looks',

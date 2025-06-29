@@ -52,7 +52,6 @@ dependencies:
   injectable: ^2.3.5
 
   # Network & API
-  dio: ^5.4.1
   json_annotation: ^4.8.1
 
   # UI Components
