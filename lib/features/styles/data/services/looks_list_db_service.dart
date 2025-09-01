@@ -41,6 +41,14 @@ class LooksListDbService {
     return _box.values.map((map) => LooksListModel.fromJson(map)).toList();
   }
 
+  // Get looks lists filtered by weather
+  Future<List<LooksListModel>> getLooksListsByWeather(String weather) async {
+    final allLists = await getAllLooksLists();
+    return allLists
+        .where((list) => list.weather?.toLowerCase() == weather.toLowerCase())
+        .toList();
+  }
+
   // Get a looks list by ID
   Future<LooksListModel?> getLooksList(String id) async {
     final map = _box.get(id);

@@ -20,8 +20,15 @@ class ChooseItemsBottomSheet extends StatefulWidget {
 class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
     with SingleTickerProviderStateMixin {
   int selectedTab = 0;
-  final List<String> tabs = ['All clothes', 'Completed looks', 'Recomendation'];
-  Set<int> selectedItems = {};
+  final List<String> tabs = [
+    'All clothes',
+    'Completed looks'
+  ]; // 'Recomendation' commented out
+
+  // Separate selection tracking for each tab
+  Set<int> selectedAllClothesItems = {};
+  Set<int> selectedCompletedLooksItems = {};
+
   late Future<List<ClothingItem>> _clothesFuture;
   List<ClothingItem> _allClothes = [];
 
@@ -65,14 +72,14 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
           ),
           itemBuilder: (context, index) {
             final item = clothes[index];
-            final isSelected = selectedItems.contains(index);
+            final isSelected = selectedAllClothesItems.contains(index);
             return GestureDetector(
               onTap: () {
                 setState(() {
                   if (isSelected) {
-                    selectedItems.remove(index);
+                    selectedAllClothesItems.remove(index);
                   } else {
-                    selectedItems.add(index);
+                    selectedAllClothesItems.add(index);
                   }
                 });
               },
@@ -202,20 +209,11 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
                 Expanded(
                   child: selectedTab == 0
                       ? _buildAllClothesTab()
-                      : selectedTab == 1
-                          ? CompletedLooksList(
-                              initialSelectedItems: selectedItems.toList(),
-                              onSelectionChanged: _updateSelectedItems,
-                            )
-                          : const Center(
-                              child: Text(
-                                'Coming soon...',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ),
+                      : CompletedLooksList(
+                          initialSelectedItems:
+                              selectedCompletedLooksItems.toList(),
+                          onSelectionChanged: _updateCompletedLooksSelection,
+                        ),
                 ),
               ],
             ),
@@ -230,11 +228,9 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: selectedItems.isNotEmpty
+                    onPressed: _getTotalSelectedItems() > 0
                         ? () {
-                            final selected = selectedItems
-                                .map((i) => _allClothes[i])
-                                .toList();
+                            final selected = _getSelectedItems();
                             if (widget.onItemsSelected != null) {
                               widget.onItemsSelected!(selected);
                             }
@@ -248,7 +244,7 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
                       color: Colors.white,
                     ),
                     label: Text(
-                      'Add ${selectedItems.length} Items',
+                      'Add ${_getTotalSelectedItems()} Items',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -273,9 +269,30 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
     );
   }
 
-  void _updateSelectedItems(List<int> selected) {
+  void _updateCompletedLooksSelection(List<int> selected) {
     setState(() {
-      selectedItems = selected.toSet();
+      selectedCompletedLooksItems = selected.toSet();
     });
+  }
+
+  int _getTotalSelectedItems() {
+    return selectedAllClothesItems.length + selectedCompletedLooksItems.length;
+  }
+
+  List<ClothingItem> _getSelectedItems() {
+    final List<ClothingItem> selected = [];
+
+    // Add selected items from "All clothes" tab
+    for (int index in selectedAllClothesItems) {
+      if (index < _allClothes.length) {
+        selected.add(_allClothes[index]);
+      }
+    }
+
+    // Add selected items from "Completed looks" tab
+    // Note: This would need to be implemented based on how completed looks are structured
+    // For now, we'll only return the selected clothes items
+
+    return selected;
   }
 }

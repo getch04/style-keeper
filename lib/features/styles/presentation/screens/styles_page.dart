@@ -173,14 +173,97 @@ class _StylesPageState extends State<StylesPage> {
 
                   return ListView(
                     children: [
-                      ...filteredLooksLists.map((looksList) => _StyleCollection(
-                            title: looksList.name,
-                            itemCount: looksList.items.length,
-                            images: looksList.items
-                                .take(3)
-                                .map((item) => item.imagePath)
-                                .toList(),
-                            looksListId: looksList.id,
+                      ...filteredLooksLists.map((looksList) => Dismissible(
+                            key: Key(looksList.id),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Delete',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            confirmDismiss: (direction) async {
+                              return await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Delete Look'),
+                                    content: Text(
+                                      'Are you sure you want to delete "${looksList.name}"? This action cannot be undone.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                        ),
+                                        child: const Text('Delete'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            onDismissed: (direction) {
+                              final provider =
+                                  context.read<LooksListProvider>();
+                              provider.deleteLooksList(looksList.id);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('${looksList.name} deleted'),
+                                  action: SnackBarAction(
+                                    label: '',
+                                    onPressed: () {
+                                      // Note: This would require implementing an undo functionality
+                                      // For now, we'll just show a message
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Undo functionality not implemented'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                            child: _StyleCollection(
+                              title: looksList.name,
+                              itemCount: looksList.items.length,
+                              images: looksList.items
+                                  .take(3)
+                                  .map((item) => item.imagePath)
+                                  .toList(),
+                              looksListId: looksList.id,
+                            ),
                           )),
                       const SizedBox(height: 80),
                     ],

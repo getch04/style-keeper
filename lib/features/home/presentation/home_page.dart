@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int selectedWeatherIndex=0;
+  int selectedWeatherIndex = 0;
 
   final List<Map<String, String>> weatherIcons = [
     {'selected': AppImages.yellowSun, 'unselected': AppImages.sun},
@@ -28,6 +28,26 @@ class _HomePageState extends State<HomePage> {
     {'selected': AppImages.yellowStorm, 'unselected': AppImages.storm},
     {'selected': AppImages.yellowSnow, 'unselected': AppImages.snow},
   ];
+
+  // Weather mapping for filtering
+  final List<String> weatherTypes = [
+    'sunny',
+    'windy',
+    'cloudy',
+    'rainy',
+    'stormy',
+    'snowy',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Load looks lists filtered by default weather (sunny) when the page is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final defaultWeather = weatherTypes[selectedWeatherIndex]; // sunny
+      context.read<LooksListProvider>().loadLooksListsByWeather(defaultWeather);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +87,11 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         selectedWeatherIndex = index;
                       });
+                      // Load looks filtered by selected weather
+                      final selectedWeather = weatherTypes[index];
+                      context
+                          .read<LooksListProvider>()
+                          .loadLooksListsByWeather(selectedWeather);
                     },
                     child: SvgPicture.asset(
                       isSelected
@@ -146,95 +171,6 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ],
-    );
-  }
-
-  String _todayString() {
-    final now = DateTime.now();
-    return '${_weekdayName(now.weekday)} ${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}';
-  }
-
-  String _weekdayName(int weekday) {
-    const names = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday'
-    ];
-    return names[(weekday - 1) % 7];
-  }
-
-  String _mapWeatherIcon(int temp) {
-    if (temp > 30) {
-      return AppImages.sun;
-    } else if (temp > 20) {
-      return AppImages.cloud;
-    } else if (temp > 10) {
-      return AppImages.rain;
-    } else {
-      return AppImages.snow;
-    }
-  }
-
-  Widget _buildWeatherCard({
-    required String date,
-    required String temperature,
-    required String icon,
-    required String description,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.darkGray.withOpacity(0.12),
-            blurRadius: 24,
-            offset: const Offset(0, 0),
-          ),
-          BoxShadow(
-            color: AppColors.black.withOpacity(0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 0),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                date,
-                style: const TextStyle(
-                  color: AppColors.darkGray,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                temperature,
-                style: const TextStyle(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 45,
-                ),
-              ),
-            ],
-          ),
-          SvgPicture.asset(
-            _mapWeatherIcon(int.tryParse(temperature) ?? 0),
-            width: 60,
-            height: 60,
-          ),
-        ],
-      ),
     );
   }
 

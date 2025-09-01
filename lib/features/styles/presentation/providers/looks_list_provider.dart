@@ -46,6 +46,21 @@ class LooksListProvider extends ChangeNotifier {
 
     try {
       _looksLists = await _dbService.getAllLooksLists();
+      print('looks lists: $_looksLists');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Load looks lists filtered by weather
+  Future<void> loadLooksListsByWeather(String weather) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      _looksLists = await _dbService.getLooksListsByWeather(weather);
+      print('looks lists filtered by $weather: $_looksLists');
     } finally {
       _isLoading = false;
       notifyListeners();
