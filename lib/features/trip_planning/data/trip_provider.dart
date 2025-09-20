@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
 import 'package:style_keeper/features/trip_planning/data/models/trip_model.dart';
 import 'package:style_keeper/features/trip_planning/data/trip_db_service.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
@@ -11,6 +12,7 @@ class TripProvider extends ChangeNotifier {
   String? _newTripDuration;
   String? _newTripImagePath;
   List<ClothingItem> _temporaryItems = [];
+  List<LooksListModel> _temporaryCompletedLooks = [];
 
   // Edit mode fields
   bool editTripMode = false;
@@ -59,6 +61,7 @@ class TripProvider extends ChangeNotifier {
       duration: _newTripDuration ?? '',
       imagePath: _newTripImagePath ?? '',
       items: _temporaryItems,
+      completedLooks: _temporaryCompletedLooks,
     );
     _trips = [..._trips, trip];
     clearForm();
@@ -107,8 +110,24 @@ class TripProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addTemporaryCompletedLook(LooksListModel look) {
+    _temporaryCompletedLooks = [..._temporaryCompletedLooks, look];
+    notifyListeners();
+  }
+
+  void removeTemporaryCompletedLook(String lookId) {
+    _temporaryCompletedLooks =
+        _temporaryCompletedLooks.where((look) => look.id != lookId).toList();
+    notifyListeners();
+  }
+
   void clearTemporaryItems() {
     _temporaryItems = [];
+    notifyListeners();
+  }
+
+  void clearTemporaryCompletedLooks() {
+    _temporaryCompletedLooks = [];
     notifyListeners();
   }
 
@@ -117,6 +136,7 @@ class TripProvider extends ChangeNotifier {
     _newTripDuration = null;
     _newTripImagePath = null;
     clearTemporaryItems();
+    clearTemporaryCompletedLooks();
     notifyListeners();
   }
 }

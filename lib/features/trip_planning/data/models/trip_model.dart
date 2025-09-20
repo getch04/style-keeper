@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 
 part 'trip_model.g.dart';
@@ -21,9 +22,12 @@ class TripModel extends HiveObject {
   final List<ClothingItem> items;
 
   @HiveField(5)
-  final DateTime createdAt;
+  final List<LooksListModel> completedLooks;
 
   @HiveField(6)
+  final DateTime createdAt;
+
+  @HiveField(7)
   final DateTime updatedAt;
 
   TripModel({
@@ -32,6 +36,7 @@ class TripModel extends HiveObject {
     required this.duration,
     required this.imagePath,
     required this.items,
+    required this.completedLooks,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -42,6 +47,7 @@ class TripModel extends HiveObject {
     String? duration,
     String? imagePath,
     List<ClothingItem>? items,
+    List<LooksListModel>? completedLooks,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -51,6 +57,7 @@ class TripModel extends HiveObject {
       duration: duration ?? this.duration,
       imagePath: imagePath ?? this.imagePath,
       items: items ?? this.items,
+      completedLooks: completedLooks ?? this.completedLooks,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

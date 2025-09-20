@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
 import 'package:style_keeper/features/trip_planning/data/models/trip_model.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:uuid/uuid.dart';
@@ -18,6 +19,7 @@ class TripDbService {
     required String duration,
     required String imagePath,
     List<ClothingItem> items = const [],
+    List<LooksListModel> completedLooks = const [],
   }) async {
     final now = DateTime.now();
     final trip = TripModel(
@@ -26,6 +28,7 @@ class TripDbService {
       duration: duration,
       imagePath: imagePath,
       items: items,
+      completedLooks: completedLooks,
       createdAt: now,
       updatedAt: now,
     );

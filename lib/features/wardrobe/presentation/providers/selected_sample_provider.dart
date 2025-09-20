@@ -12,7 +12,7 @@ class SelectedSampleProvider extends ChangeNotifier {
   }
 
   void clear() {
-    _selectedIndex = 1;
+    _selectedIndex = 0;
     notifyListeners();
   }
 }

@@ -21,13 +21,17 @@ class TripDetailPage extends StatefulWidget {
 class _TripDetailPageState extends State<TripDetailPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late List<bool> checked;
+  late List<bool> checkedClothes;
+  late List<bool> checkedLooks;
   bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -36,7 +40,9 @@ class _TripDetailPageState extends State<TripDetailPage>
     if (!_initialized) {
       final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
       final trip = extra?['trip'] as TripModel;
-      checked = List.generate(trip.items.length, (index) => false);
+      checkedClothes = List.generate(trip.items.length, (index) => false);
+      checkedLooks =
+          List.generate(trip.completedLooks.length, (index) => false);
       _initialized = true;
     }
   }
@@ -144,23 +150,72 @@ class _TripDetailPageState extends State<TripDetailPage>
                     ),
                     const SizedBox(height: 16),
                     // Tabs
-                    TabBar(
-                      controller: _tabController,
-                      indicatorColor: AppColors.yellow,
-                      indicatorWeight: 3,
-                      labelColor: AppColors.yellow,
-                      unselectedLabelColor: Colors.black,
-                      labelStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
-                      tabs: const [
-                        Tab(text: 'All clothes'),
-                        Tab(text: 'Completed looks'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _tabController.animateTo(0);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: _tabController.index == 0
+                                        ? AppColors.yellow
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'All clothes (${trip.items.length})',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: _tabController.index == 0
+                                      ? AppColors.yellow
+                                      : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _tabController.animateTo(1);
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: _tabController.index == 1
+                                        ? AppColors.yellow
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'Completed looks (${trip.completedLooks.length})',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: _tabController.index == 1
+                                      ? AppColors.yellow
+                                      : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -182,11 +237,12 @@ class _TripDetailPageState extends State<TripDetailPage>
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          checked[index] = !checked[index];
+                                          checkedClothes[index] =
+                                              !checkedClothes[index];
                                         });
                                       },
                                       child: SvgPicture.asset(
-                                        checked[index]
+                                        checkedClothes[index]
                                             ? AppImages.squareCheck
                                             : AppImages.squareUncheck,
                                         width: 24,
@@ -195,30 +251,29 @@ class _TripDetailPageState extends State<TripDetailPage>
                                     ),
                                     const SizedBox(width: 8),
                                     // Image
-                                    item.imagePath.isNotEmpty
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            child: Image.file(
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: item.imagePath.isNotEmpty
+                                          ? Image.file(
                                               File(item.imagePath),
                                               width: 64,
                                               height: 64,
                                               fit: BoxFit.cover,
+                                            )
+                                          : Container(
+                                              width: 64,
+                                              height: 64,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade200,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: const Icon(
+                                                  Icons.image_not_supported,
+                                                  color: Colors.grey,
+                                                  size: 32),
                                             ),
-                                          )
-                                        : Container(
-                                            width: 64,
-                                            height: 64,
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey.shade200,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: const Icon(
-                                                Icons.image_not_supported,
-                                                color: Colors.grey,
-                                                size: 32),
-                                          ),
+                                    ),
                                     const SizedBox(width: 12),
                                     // Details
                                     Expanded(
@@ -256,15 +311,106 @@ class _TripDetailPageState extends State<TripDetailPage>
                               );
                             },
                           ),
-                          // Completed looks tab (empty for now)
-                          const Center(
-                            child: Text(
-                              'No completed looks yet',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16,
-                              ),
-                            ),
+                          // Completed looks tab
+                          ListView.builder(
+                            itemCount: trip.completedLooks.length,
+                            itemBuilder: (context, index) {
+                              final look = trip.completedLooks[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Checkbox
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          checkedLooks[index] =
+                                              !checkedLooks[index];
+                                        });
+                                      },
+                                      child: SvgPicture.asset(
+                                        checkedLooks[index]
+                                            ? AppImages.squareCheck
+                                            : AppImages.squareUncheck,
+                                        width: 24,
+                                        height: 24,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    // Preview images (first 3 items)
+                                    SizedBox(
+                                      width: 64,
+                                      height: 64,
+                                      child: Row(
+                                        children:
+                                            look.items.take(3).map((item) {
+                                          return Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 2),
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                child: item.imagePath.isNotEmpty
+                                                    ? Image.file(
+                                                        File(item.imagePath),
+                                                        height: 64,
+                                                        fit: BoxFit.cover,
+                                                      )
+                                                    : Container(
+                                                        height: 64,
+                                                        color: Colors
+                                                            .grey.shade200,
+                                                        child: const Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          color: Colors.grey,
+                                                          size: 16,
+                                                        ),
+                                                      ),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    // Details
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            look.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '${look.items.length} items',
+                                            style: const TextStyle(
+                                              color: Color(0xFFBDBDBD),
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SvgPicture.asset(
+                                      AppImages.eye,
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -273,111 +419,6 @@ class _TripDetailPageState extends State<TripDetailPage>
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ShoppingListItem extends StatelessWidget {
-  final String name;
-  final String placeOfPurchase;
-  final String imagePath;
-  final String price;
-  final bool checked;
-  final ValueChanged<bool> onChanged;
-  const _ShoppingListItem({
-    required this.name,
-    required this.placeOfPurchase,
-    required this.imagePath,
-    required this.price,
-    required this.checked,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Checkbox
-          GestureDetector(
-            onTap: () => onChanged(!checked),
-            child: SvgPicture.asset(
-              checked ? AppImages.squareCheck : AppImages.squareUncheck,
-              width: 16,
-              height: 16,
-            ),
-          ),
-          const SizedBox(width: 8),
-          // Image
-          if (imagePath.isNotEmpty)
-            FittedBox(
-              fit: BoxFit.contain,
-              child: Container(
-                width: 100,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: AppColors.darkGray.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    File(imagePath),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-          const SizedBox(width: 12),
-          // Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Place: $placeOfPurchase',
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  price,
-                  style: const TextStyle(
-                    color: AppColors.yellow,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SvgPicture.asset(
-            AppImages.eye,
-            width: 24,
-            height: 24,
           ),
         ],
       ),

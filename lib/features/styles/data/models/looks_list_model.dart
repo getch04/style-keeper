@@ -1,13 +1,32 @@
+import 'package:hive/hive.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 
-class LooksListModel {
+part 'looks_list_model.g.dart';
+
+@HiveType(typeId: 11)
+class LooksListModel extends HiveObject {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final List<ClothingItem> items;
+
+  @HiveField(3)
   final String? imagePath;
+
+  @HiveField(4)
   final DateTime createdAt;
+
+  @HiveField(5)
   final DateTime updatedAt;
+
+  @HiveField(6)
   final String? season;
+
+  @HiveField(7)
   final String? weather;
 
   LooksListModel({
@@ -49,7 +68,7 @@ class LooksListModel {
     );
   }
 
-  // Convert model to Map for database operations
+  // Convert model to Map for database operations (for backward compatibility)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -63,7 +82,7 @@ class LooksListModel {
     };
   }
 
-  // Create model from Map (from database)
+  // Create model from Map (from database) - for backward compatibility
   factory LooksListModel.fromJson(Map<dynamic, dynamic> map) {
     return LooksListModel(
       id: map['id'] as String,

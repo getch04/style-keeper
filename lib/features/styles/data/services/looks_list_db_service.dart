@@ -5,11 +5,12 @@ import 'package:uuid/uuid.dart';
 
 class LooksListDbService {
   static const String _boxName = 'looks_lists';
-  late Box<Map<dynamic, dynamic>> _box;
+  late Box<dynamic>
+      _box; // Use dynamic to handle both old JSON and new Hive objects
   final _uuid = const Uuid();
 
   Future<void> init() async {
-    _box = await Hive.openBox<Map<dynamic, dynamic>>(_boxName);
+    _box = await Hive.openBox<dynamic>(_boxName);
   }
 
   // Create a new looks list
@@ -32,13 +33,25 @@ class LooksListDbService {
       weather: weather,
     );
 
-    await _box.put(looksList.id, looksList.toJson());
+    await _box.put(looksList.id, looksList);
     return looksList;
   }
 
   // Get all looks lists
   Future<List<LooksListModel>> getAllLooksLists() async {
-    return _box.values.map((map) => LooksListModel.fromJson(map)).toList();
+    final List<LooksListModel> looksLists = [];
+
+    for (final value in _box.values) {
+      if (value is LooksListModel) {
+        // New Hive object format
+        looksLists.add(value);
+      } else if (value is Map) {
+        // Old JSON format - convert to LooksListModel
+        looksLists.add(LooksListModel.fromJson(value));
+      }
+    }
+
+    return looksLists;
   }
 
   // Get looks lists filtered by weather
@@ -51,9 +64,18 @@ class LooksListDbService {
 
   // Get a looks list by ID
   Future<LooksListModel?> getLooksList(String id) async {
-    final map = _box.get(id);
-    if (map == null) return null;
-    return LooksListModel.fromJson(map);
+    final value = _box.get(id);
+    if (value == null) return null;
+
+    if (value is LooksListModel) {
+      // New Hive object format
+      return value;
+    } else if (value is Map) {
+      // Old JSON format - convert to LooksListModel
+      return LooksListModel.fromJson(value);
+    }
+
+    return null;
   }
 
   // Update a looks list
@@ -61,7 +83,7 @@ class LooksListDbService {
     final updatedList = looksList.copyWith(
       updatedAt: DateTime.now(),
     );
-    await _box.put(updatedList.id, updatedList.toJson());
+    await _box.put(updatedList.id, updatedList);
     return updatedList;
   }
 
@@ -86,7 +108,7 @@ class LooksListDbService {
       updatedAt: DateTime.now(),
     );
 
-    await _box.put(updatedList.id, updatedList.toJson());
+    await _box.put(updatedList.id, updatedList);
     return updatedList;
   }
 
@@ -108,7 +130,7 @@ class LooksListDbService {
       updatedAt: DateTime.now(),
     );
 
-    await _box.put(updatedList.id, updatedList.toJson());
+    await _box.put(updatedList.id, updatedList);
     return updatedList;
   }
 
@@ -131,7 +153,7 @@ class LooksListDbService {
       updatedAt: DateTime.now(),
     );
 
-    await _box.put(updatedList.id, updatedList.toJson());
+    await _box.put(updatedList.id, updatedList);
     return updatedList;
   }
 }

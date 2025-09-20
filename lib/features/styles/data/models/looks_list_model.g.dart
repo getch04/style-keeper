@@ -1,35 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'trip_model.dart';
+part of 'looks_list_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TripModelAdapter extends TypeAdapter<TripModel> {
+class LooksListModelAdapter extends TypeAdapter<LooksListModel> {
   @override
-  final int typeId = 10;
+  final int typeId = 11;
 
   @override
-  TripModel read(BinaryReader reader) {
+  LooksListModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return TripModel(
+    return LooksListModel(
       id: fields[0] as String,
       name: fields[1] as String,
-      duration: fields[2] as String,
-      imagePath: fields[3] as String,
-      items: (fields[4] as List).cast<ClothingItem>(),
-      completedLooks: (fields[5] as List).cast<LooksListModel>(),
-      createdAt: fields[6] as DateTime,
-      updatedAt: fields[7] as DateTime,
+      items: (fields[2] as List).cast<ClothingItem>(),
+      imagePath: fields[3] as String?,
+      createdAt: fields[4] as DateTime,
+      updatedAt: fields[5] as DateTime,
+      season: fields[6] as String?,
+      weather: fields[7] as String?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, TripModel obj) {
+  void write(BinaryWriter writer, LooksListModel obj) {
     writer
       ..writeByte(8)
       ..writeByte(0)
@@ -37,17 +37,17 @@ class TripModelAdapter extends TypeAdapter<TripModel> {
       ..writeByte(1)
       ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.duration)
+      ..write(obj.items)
       ..writeByte(3)
       ..write(obj.imagePath)
       ..writeByte(4)
-      ..write(obj.items)
-      ..writeByte(5)
-      ..write(obj.completedLooks)
-      ..writeByte(6)
       ..write(obj.createdAt)
+      ..writeByte(5)
+      ..write(obj.updatedAt)
+      ..writeByte(6)
+      ..write(obj.season)
       ..writeByte(7)
-      ..write(obj.updatedAt);
+      ..write(obj.weather);
   }
 
   @override
@@ -56,7 +56,7 @@ class TripModelAdapter extends TypeAdapter<TripModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TripModelAdapter &&
+      other is LooksListModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

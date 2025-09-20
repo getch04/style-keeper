@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_colors.dart';
 import 'core/di/service_locator.dart';
 import 'core/router/app_router.dart';
+import 'features/styles/data/models/looks_list_model.dart';
 import 'features/styles/data/services/looks_list_db_service.dart';
 import 'features/styles/presentation/providers/looks_list_provider.dart';
 import 'features/trip_planning/data/models/trip_model.dart';
@@ -30,6 +31,7 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ClothingItemAdapter());
   Hive.registerAdapter(TripModelAdapter());
+  Hive.registerAdapter(LooksListModelAdapter());
   await Hive.openBox<ClothingItem>('clothing_items');
 
   // Initialize ShoppingListDbService

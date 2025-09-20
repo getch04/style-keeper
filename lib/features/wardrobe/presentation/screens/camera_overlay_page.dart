@@ -233,7 +233,8 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                     ),
                     OverlayShape(
                       imagePath: icons[selectedIndex],
-                      showSample: selectedIndex != 0,
+                      showSample:
+                          false, // Hide samples when image is from gallery
                     ),
                   ],
                 )
@@ -310,7 +311,10 @@ class _CameraOverlayPageState extends State<CameraOverlayPage> {
                         return GestureDetector(
                           onTap: () {
                             if (index == 0) {
-                              _pickImageFromGallery();
+                              /// reset the selected sample means... no sample selected at all.
+                              Provider.of<SelectedSampleProvider>(context,
+                                      listen: false)
+                                  .clear();
                             } else {
                               Provider.of<SelectedSampleProvider>(context,
                                       listen: false)

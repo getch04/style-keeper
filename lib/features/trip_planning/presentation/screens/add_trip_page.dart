@@ -6,11 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
 import 'package:style_keeper/features/trip_planning/data/models/trip_model.dart';
 import 'package:style_keeper/features/trip_planning/data/trip_provider.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/choose_items_bottom_sheet.dart';
 import 'package:style_keeper/shared/widgets/add_photo_section.dart';
+import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
 class AddTripPage extends StatefulWidget {
   static const String name = 'add-trip';
@@ -25,7 +27,8 @@ class _AddTripPageState extends State<AddTripPage> {
   final TextEditingController _durationController = TextEditingController();
   bool _isSaving = false;
   bool _isInitialized = false;
-  List<ClothingItem> _selectedItems = [];
+  List<TripItem> _selectedItems = [];
+  int _selectedTab = 0; // 0 for clothing items, 1 for completed looks
 
   @override
   void initState() {
@@ -72,7 +75,12 @@ class _AddTripPageState extends State<AddTripPage> {
             for (final item in trip.items) {
               provider.addTemporaryItem(item);
             }
-            _selectedItems = List<ClothingItem>.from(trip.items);
+            // Convert trip items to TripItem objects
+            _selectedItems = [
+              ...trip.items.map((item) => TripItem.clothing(item)),
+              ...trip.completedLooks
+                  .map((look) => TripItem.completedLook(look)),
+            ];
           }
         }
         _isInitialized = true;
@@ -105,11 +113,22 @@ class _AddTripPageState extends State<AddTripPage> {
           trip = null;
         }
         if (trip != null) {
+          // Separate clothing items and completed looks
+          final clothingItems = _selectedItems
+              .where((item) => item.isClothingItem)
+              .map((item) => item.clothingItem!)
+              .toList();
+          final completedLooks = _selectedItems
+              .where((item) => item.isCompletedLook)
+              .map((item) => item.completedLook!)
+              .toList();
+
           final updatedTrip = trip.copyWith(
             name: _nameController.text,
             duration: _durationController.text,
             imagePath: provider.newTripImagePath ?? trip.imagePath,
-            items: _selectedItems,
+            items: clothingItems,
+            completedLooks: completedLooks,
             updatedAt: DateTime.now(),
           );
           await provider.updateTrip(updatedTrip);
@@ -213,8 +232,8 @@ class _AddTripPageState extends State<AddTripPage> {
                             ),
                             ElevatedButton.icon(
                               onPressed: () async {
-                                final result = await showModalBottomSheet<
-                                    List<ClothingItem>>(
+                                final result =
+                                    await showModalBottomSheet<List<TripItem>>(
                                   context: context,
                                   isScrollControlled: true,
                                   builder: (context) => SizedBox(
@@ -227,11 +246,19 @@ class _AddTripPageState extends State<AddTripPage> {
                                   setState(() {
                                     _selectedItems = result;
                                   });
-                                  // Also update provider's temporaryItems for compatibility
+                                  // Update provider's temporary items for compatibility
                                   final provider = context.read<TripProvider>();
                                   provider.clearTemporaryItems();
+                                  provider.clearTemporaryCompletedLooks();
+
                                   for (final item in result) {
-                                    provider.addTemporaryItem(item);
+                                    if (item.isClothingItem) {
+                                      provider
+                                          .addTemporaryItem(item.clothingItem!);
+                                    } else if (item.isCompletedLook) {
+                                      provider.addTemporaryCompletedLook(
+                                          item.completedLook!);
+                                    }
                                   }
                                 }
                               },
@@ -271,17 +298,107 @@ class _AddTripPageState extends State<AddTripPage> {
                             ),
                           ),
                         ),
-                      ..._selectedItems.map((item) => _TripItemTile(
-                            item: item,
-                            onDelete: () {
-                              setState(() {
-                                _selectedItems
-                                    .removeWhere((i) => i.id == item.id);
-                              });
-                              final provider = context.read<TripProvider>();
-                              provider.removeTemporaryItem(item.id);
-                            },
-                          )),
+                      if (_selectedItems.isNotEmpty) ...[
+                        // Tabs for items and looks
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _selectedTab = 0),
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                      color: _selectedTab == 0
+                                          ? AppColors.yellow
+                                          : Colors.transparent,
+                                      width: 2,
+                                    )),
+                                  ),
+                                  child: Text(
+                                    'Clothing Items (${_selectedItems.where((item) => item.isClothingItem).length})',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: _selectedTab == 0
+                                          ? AppColors.yellow
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _selectedTab = 1),
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: _selectedTab == 1
+                                            ? AppColors.yellow
+                                            : Colors.transparent,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Completed Looks (${_selectedItems.where((item) => item.isCompletedLook).length})',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: _selectedTab == 1
+                                          ? AppColors.yellow
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Display items based on selected tab
+                        if (_selectedTab == 0)
+                          ..._selectedItems
+                              .where((item) => item.isClothingItem)
+                              .map((item) => _TripItemTile(
+                                    item: item.clothingItem!,
+                                    onDelete: () {
+                                      setState(() {
+                                        _selectedItems.removeWhere((i) =>
+                                            i.isClothingItem &&
+                                            i.clothingItem!.id ==
+                                                item.clothingItem!.id);
+                                      });
+                                      final provider =
+                                          context.read<TripProvider>();
+                                      provider.removeTemporaryItem(
+                                          item.clothingItem!.id);
+                                    },
+                                  )),
+                        if (_selectedTab == 1)
+                          ..._selectedItems
+                              .where((item) => item.isCompletedLook)
+                              .map((item) => _TripCompletedLookTile(
+                                    look: item.completedLook!,
+                                    onDelete: () {
+                                      setState(() {
+                                        _selectedItems.removeWhere((i) =>
+                                            i.isCompletedLook &&
+                                            i.completedLook!.id ==
+                                                item.completedLook!.id);
+                                      });
+                                      final provider =
+                                          context.read<TripProvider>();
+                                      provider.removeTemporaryCompletedLook(
+                                          item.completedLook!.id);
+                                    },
+                                  )),
+                      ],
                       const SizedBox(height: 32),
                     ],
                   ),
@@ -396,12 +513,17 @@ class _TripItemTile extends StatelessWidget {
           // Image
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.file(
-              File(item.imagePath),
-              height: 80,
-              width: 110,
-              fit: BoxFit.cover,
-            ),
+            child: item.imagePath.isNotEmpty
+                ? Image.file(
+                    File(item.imagePath),
+                    height: 80,
+                    width: 110,
+                    fit: BoxFit.cover,
+                  )
+                : const ImagePlaceholer(
+                    width: 110,
+                    height: 80,
+                  ),
           ),
           const SizedBox(width: 16),
           // Description and price
@@ -422,6 +544,102 @@ class _TripItemTile extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   '${item.price}',
+                  style: const TextStyle(
+                    color: AppColors.yellow,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Trip completed look tile for displaying selected completed looks
+class _TripCompletedLookTile extends StatelessWidget {
+  final LooksListModel look;
+  final VoidCallback onDelete;
+  const _TripCompletedLookTile({required this.look, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Delete icon
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: GestureDetector(
+              onTap: onDelete,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: SvgPicture.asset(
+                    AppImages.delete,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Preview images (first 3 items)
+          SizedBox(
+            height: 80,
+            width: 110,
+            child: Row(
+              children: look.items.take(3).map((item) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 2),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: item.imagePath.isNotEmpty
+                          ? Image.file(
+                              File(item.imagePath),
+                              height: 80,
+                              fit: BoxFit.cover,
+                            )
+                          : const ImagePlaceholer(
+                              height: 80,
+                            ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Description
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  look.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${look.items.length} items',
                   style: const TextStyle(
                     color: AppColors.yellow,
                     fontWeight: FontWeight.bold,

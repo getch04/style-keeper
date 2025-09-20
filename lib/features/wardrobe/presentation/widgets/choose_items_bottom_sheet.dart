@@ -2,16 +2,33 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:style_keeper/core/constants/app_colors.dart';
 import 'package:style_keeper/core/constants/app_images.dart';
+import 'package:style_keeper/features/styles/data/models/looks_list_model.dart';
+import 'package:style_keeper/features/styles/presentation/providers/looks_list_provider.dart';
 import 'package:style_keeper/features/wardrobe/data/models/clothing_item.dart';
 import 'package:style_keeper/features/wardrobe/data/services/wardrobe_hive_service.dart';
 import 'package:style_keeper/features/wardrobe/presentation/widgets/completed_looks_list.dart';
 import 'package:style_keeper/shared/widgets/image_placeholer.dart';
 
+// Wrapper class to hold both clothing items and completed looks
+class TripItem {
+  final ClothingItem? clothingItem;
+  final LooksListModel? completedLook;
+
+  TripItem.clothing(this.clothingItem) : completedLook = null;
+  TripItem.completedLook(this.completedLook) : clothingItem = null;
+
+  bool get isClothingItem => clothingItem != null;
+  bool get isCompletedLook => completedLook != null;
+}
+
 class ChooseItemsBottomSheet extends StatefulWidget {
-  final void Function(List<ClothingItem>)? onItemsSelected;
-  const ChooseItemsBottomSheet({super.key, this.onItemsSelected});
+  final void Function(List<TripItem>)? onItemsSelected;
+  final bool isTrip;
+  const ChooseItemsBottomSheet(
+      {super.key, this.onItemsSelected, this.isTrip = true});
 
   @override
   State<ChooseItemsBottomSheet> createState() => _ChooseItemsBottomSheetState();
@@ -20,10 +37,8 @@ class ChooseItemsBottomSheet extends StatefulWidget {
 class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
     with SingleTickerProviderStateMixin {
   int selectedTab = 0;
-  final List<String> tabs = [
-    'All clothes',
-    'Completed looks'
-  ]; // 'Recomendation' commented out
+  List<String> get tabs =>
+      widget.isTrip ? ['All clothes', 'Completed looks'] : ['All clothes'];
 
   // Separate selection tracking for each tab
   Set<int> selectedAllClothesItems = {};
@@ -176,44 +191,51 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
                   ],
                 ),
                 const SizedBox(height: 10),
-                // Tabs
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(tabs.length, (i) {
-                    final isActive = selectedTab == i;
-                    return GestureDetector(
-                      onTap: () => setState(() => selectedTab = i),
-                      child: Column(
-                        children: [
-                          Text(
-                            tabs[i],
-                            style: TextStyle(
-                              color: isActive ? AppColors.yellow : Colors.black,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                // Show tabs only if isTrip is true (multiple tabs)
+                if (widget.isTrip) ...[
+                  // Tabs
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(tabs.length, (i) {
+                      final isActive = selectedTab == i;
+                      return GestureDetector(
+                        onTap: () => setState(() => selectedTab = i),
+                        child: Column(
+                          children: [
+                            Text(
+                              tabs[i],
+                              style: TextStyle(
+                                color:
+                                    isActive ? AppColors.yellow : Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
-                          if (isActive)
-                            Container(
-                              height: 3,
-                              width: MediaQuery.of(context).size.width * 0.22,
-                              color: AppColors.yellow,
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 18),
+                            if (isActive)
+                              Container(
+                                height: 3,
+                                width: MediaQuery.of(context).size.width * 0.22,
+                                color: AppColors.yellow,
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 18),
+                ],
                 // Content
                 Expanded(
-                  child: selectedTab == 0
-                      ? _buildAllClothesTab()
-                      : CompletedLooksList(
-                          initialSelectedItems:
-                              selectedCompletedLooksItems.toList(),
-                          onSelectionChanged: _updateCompletedLooksSelection,
-                        ),
+                  child: widget.isTrip
+                      ? (selectedTab == 0
+                          ? _buildAllClothesTab()
+                          : CompletedLooksList(
+                              initialSelectedItems:
+                                  selectedCompletedLooksItems.toList(),
+                              onSelectionChanged:
+                                  _updateCompletedLooksSelection,
+                            ))
+                      : _buildAllClothesTab(), // Direct content when not trip
                 ),
               ],
             ),
@@ -279,19 +301,26 @@ class _ChooseItemsBottomSheetState extends State<ChooseItemsBottomSheet>
     return selectedAllClothesItems.length + selectedCompletedLooksItems.length;
   }
 
-  List<ClothingItem> _getSelectedItems() {
-    final List<ClothingItem> selected = [];
+  List<TripItem> _getSelectedItems() {
+    final List<TripItem> selected = [];
 
     // Add selected items from "All clothes" tab
     for (int index in selectedAllClothesItems) {
       if (index < _allClothes.length) {
-        selected.add(_allClothes[index]);
+        selected.add(TripItem.clothing(_allClothes[index]));
       }
     }
 
-    // Add selected items from "Completed looks" tab
-    // Note: This would need to be implemented based on how completed looks are structured
-    // For now, we'll only return the selected clothes items
+    // Add selected completed looks from "Completed looks" tab (only if isTrip is true)
+    if (widget.isTrip) {
+      final provider = context.read<LooksListProvider>();
+      for (int index in selectedCompletedLooksItems) {
+        if (index < provider.looksLists.length) {
+          final completedLook = provider.looksLists[index];
+          selected.add(TripItem.completedLook(completedLook));
+        }
+      }
+    }
 
     return selected;
   }

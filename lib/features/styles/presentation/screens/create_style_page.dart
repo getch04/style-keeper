@@ -429,7 +429,7 @@ class _CreateStylePageState extends State<CreateStylePage> {
                             isScrollControlled: true,
                             builder: (context) => SizedBox(
                               height: MediaQuery.of(context).size.height * 0.9,
-                              child: const ChooseItemsBottomSheet(),
+                              child: const ChooseItemsBottomSheet(isTrip: false,),
                             ),
                           );
                           if (result != null && result.isNotEmpty) {
